@@ -11,8 +11,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors()); // Allows our frontend (Vite) to communicate with our backend on a different port
-app.use(express.json()); // Parses incoming JSON requests
+app.use(cors());
+app.use(express.json());
 
 // Connect to MongoDB Atlas
 const mongoUri = process.env.MONGODB_URI;
@@ -20,10 +20,9 @@ mongoose.connect(mongoUri)
     .then(() => console.log('Connected to MongoDB Atlas successfully.'))
     .catch(err => console.error('Database connection error:', err));
 
-// 1. GET /api/stats - Statistics dashboard data
+// 1. GET /api/stats - Statistics dashboard metrics
 app.get('/api/stats', async (req, res) => {
     try {
-        // Fetch stats in parallel to save time!
         const [totalProducts, totalDepartments, uniqueBrands] = await Promise.all([
             Product.countDocuments({}),
             Department.countDocuments({}),
@@ -52,7 +51,7 @@ app.get('/api/departments', async (req, res) => {
     }
 });
 
-// 3. GET /api/filters - Sidebar filter categories, brands, and price limits
+// 3. GET /api/filters - Fetch sidebar filter constraints using updated retail_price field
 app.get('/api/filters', async (req, res) => {
     try {
         const [brands, categories, priceStats] = await Promise.all([
@@ -62,8 +61,8 @@ app.get('/api/filters', async (req, res) => {
                 {
                     $group: {
                         _id: null,
-                        minPrice: { $min: "$price" },
-                        maxPrice: { $max: "$price" }
+                        minPrice: { $min: "$retail_price" }, // Changed from price to retail_price
+                        maxPrice: { $max: "$retail_price" }  // Changed from price to retail_price
                     }
                 }
             ])
@@ -84,18 +83,16 @@ app.get('/api/filters', async (req, res) => {
     }
 });
 
-// 4. GET /api/products - Main product list endpoint with filtering, search, pagination, and IN-MEMORY JOIN
+// 4. GET /api/products - Paginated product listings with search and filter queries
 app.get('/api/products', async (req, res) => {
     try {
-        // A. Parse pagination params
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        // B. Build search & filter queries dynamically
         const query = {};
 
-        // Search text filter (matches name or brand case-insensitively)
+        // Case-insensitive search on name or brand
         if (req.query.search) {
             query.$or = [
                 { name: { $regex: req.query.search, $options: 'i' } },
@@ -103,36 +100,33 @@ app.get('/api/products', async (req, res) => {
             ];
         }
 
-        // Brand filter
         if (req.query.brand) {
             query.brand = req.query.brand;
         }
 
-        // Category filter
         if (req.query.category) {
             query.category = req.query.category;
         }
 
-        // Department ID filter (converted to Number)
         if (req.query.department_id) {
             query.department_id = parseInt(req.query.department_id);
         }
 
-        // Price range filter
+        // Price range filter on retail_price field
         if (req.query.minPrice || req.query.maxPrice) {
-            query.price = {};
-            if (req.query.minPrice) query.price.$gte = parseInt(req.query.minPrice);
-            if (req.query.maxPrice) query.price.$lte = parseInt(req.query.maxPrice);
+            query.retail_price = {}; // Changed from price to retail_price
+            if (req.query.minPrice) query.retail_price.$gte = parseInt(req.query.minPrice);
+            if (req.query.maxPrice) query.retail_price.$lte = parseInt(req.query.maxPrice);
         }
 
-        // C. Fetch products and departments concurrently (In-Memory Join preparation)
+        // Fetch products and departments concurrently for custom join
         const [products, totalProducts, departments] = await Promise.all([
             Product.find(query).skip(skip).limit(limit).lean(),
             Product.countDocuments(query),
             Department.find({}).lean()
         ]);
 
-        // D. Perform In-Memory Join using a Hash Map
+        // Build in-memory hash-map join
         const departmentMap = {};
         departments.forEach(dept => {
             departmentMap[dept.department_id] = dept.name;
@@ -143,7 +137,6 @@ app.get('/api/products', async (req, res) => {
             department_name: departmentMap[prod.department_id] || 'Unknown'
         }));
 
-        // E. Send paginated response
         res.json({
             products: joinedProducts,
             totalPages: Math.ceil(totalProducts / limit),
@@ -157,7 +150,39 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// Start listening
+// 5. GET /api/products/:id - Single product lookup with in-memory relational join
+app.get('/api/products/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        let product = null;
+
+        // Support lookup by numeric "id" or Mongoose ObjectId
+        if (!isNaN(productId)) {
+            product = await Product.findOne({ id: parseInt(productId) }).lean();
+        } else if (mongoose.Types.ObjectId.isValid(productId)) {
+            product = await Product.findById(productId).lean();
+        }
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Perform single in-memory join
+        const dept = await Department.findOne({ department_id: product.department_id }).lean();
+
+        const joinedProduct = {
+            ...product,
+            department_name: dept ? dept.name : 'Unknown'
+        };
+
+        res.json(joinedProduct);
+    } catch (error) {
+        console.error('Error fetching single product:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

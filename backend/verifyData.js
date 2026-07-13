@@ -31,12 +31,15 @@ async function verifyData() {
 
         if (sampleProduct) {
             console.log('--- 🔍 SAMPLE PRODUCT AUDIT ---');
+            console.log(`Product ID   : ${sampleProduct.id}`);
             console.log(`Name         : ${sampleProduct.name}`);
             console.log(`Brand        : ${sampleProduct.brand}`);
             console.log(`Category     : ${sampleProduct.category}`);
-            console.log(`Price (INR)  : ₹${sampleProduct.price}`);
-            console.log(`Price (USD)  : $${sampleProduct.price_usd}`);
-            console.log(`Image URL    : ${sampleProduct.image_url}`);
+            console.log(`Cost (INR)   : ₹${sampleProduct.cost}`);
+            console.log(`Retail Price : ₹${sampleProduct.retail_price}`);
+            console.log(`SKU Code     : ${sampleProduct.sku}`);
+            console.log(`Dist. Center : Center #${sampleProduct.distribution_center_id}`);
+            console.log(`Cover Image  : ${sampleProduct.image}`);
             console.log(`Dept ID Ref  : ${sampleProduct.department_id}`);
 
             // Look up the corresponding department in the DB to verify relation
@@ -47,15 +50,17 @@ async function verifyData() {
             console.log('⚠️ No products found in the database!');
         }
 
-        // 3. Run a quick validation check for missing fields
-        const productsWithoutImages = await Product.countDocuments({ image_url: { $exists: false } });
+        // 3. Run validation checks for missing fields and duplicates
+        const productsWithoutImages = await Product.countDocuments({ image: { $exists: false } });
+        const productsWithoutSKU = await Product.countDocuments({ sku: { $exists: false } });
         const productsWithoutDept = await Product.countDocuments({ department_id: { $exists: false } });
 
         console.log('--- 🛡️ INTEGRITY CHECKS ---');
-        if (productsWithoutImages === 0 && productsWithoutDept === 0) {
-            console.log('✅ Integrity check passed! All products have valid images and department IDs.');
+        if (productsWithoutImages === 0 && productsWithoutSKU === 0 && productsWithoutDept === 0) {
+            console.log('✅ Integrity check passed! All products have valid images, SKUs, and department IDs.');
         } else {
             console.log(`⚠️ Warning: ${productsWithoutImages} products are missing image URLs.`);
+            console.log(`⚠️ Warning: ${productsWithoutSKU} products are missing SKU codes.`);
             console.log(`⚠️ Warning: ${productsWithoutDept} products are missing department IDs.`);
         }
         console.log('---------------------------');

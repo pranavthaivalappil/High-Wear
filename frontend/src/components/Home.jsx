@@ -30,16 +30,16 @@ function Home() {
             {/* 1. Hero Section */}
             <div className="row justify-content-center text-center mb-5">
                 <div className="col-md-10">
-                    <div className="glass-panel p-5 mb-4 position-relative overflow-hidden">
+                    <div className="hero-section p-5 mb-4 position-relative overflow-hidden">
                         <div className="position-relative z-index-1">
-                            <h1 className="display-4 fw-bold text-main mb-3">
-                                Welcome to <span className="text-accent">Apollo Market</span>
+                            <h1 className="display-4 fw-bold text-white mb-3">
+                                Welcome to <span>Apollo Market</span>
                             </h1>
-                            <p className="lead text-muted mb-4 fs-5">
+                            <p className="lead text-white-50 mb-4 fs-5">
                                 Step into the future of fashion. Browse through over 29,000 products
                                 across premium brands, categorized and filtered instantly.
                             </p>
-                            <Link to="/catalog" className="btn glass-btn btn-lg px-4 py-2">
+                            <Link to="/catalog" className="btn btn-light btn-lg px-5 py-3 fw-bold border-0 shadow-sm" style={{ borderRadius: '12px', color: '#4f46e5' }}>
                                 <i className="bi bi-bag-fill me-2"></i>
                                 Explore Catalog
                             </Link>

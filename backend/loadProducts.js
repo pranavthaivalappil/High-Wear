@@ -12,8 +12,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-// 1. Image Mapping for Categories
-// Generates beautiful Unsplash fashion images corresponding to the categories
+// Image Mapping for Categories
 const categoryImages = {
     'Accessories': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60',
     'Swim': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop&q=60',
@@ -44,7 +43,7 @@ async function seedProducts() {
         await mongoose.connect(mongoUri);
         console.log('Connected successfully. Cleaning existing products...');
 
-        // Clear out old products to start fresh
+        // Clear out old products to start fresh with new schema fields
         await Product.deleteMany({});
         console.log('Product collection cleared. Starting CSV streaming seeder...');
 
@@ -53,55 +52,61 @@ async function seedProducts() {
         let totalCount = 0;
         const BATCH_SIZE = 1000;
 
-        // 2. Open Stream of the CSV file
-        const stream = fs.createReadStream(csvFilePath)
-            .pipe(csv()); // Pipe it to the csv-parser library
+        // Open CSV read stream
+        const stream = fs.createReadStream(csvFilePath).pipe(csv());
 
         for await (const row of stream) {
-            // Translate CSV headers and format data
+            // A. Format standard fields
+            const id = parseInt(row.id) || 0;
             const name = row.name || 'Unnamed Product';
             const brand = row.brand || 'Generic';
             const category = row.category || 'General';
+            const sku = row.sku || `SKU-TEMP-${id}`;
+            const distributionCenterId = parseInt(row.distribution_center_id) || 1;
 
-            // Convert USD price to INR (approx exchange rate 83) and round to nearest integer
-            const priceUSD = parseFloat(row.retail_price) || 0.0;
-            const priceINR = Math.round(priceUSD * 83);
+            // B. USD-to-INR Conversion with FIXED ₹80 multiplier
+            const exchangeRate = 80;
+            const costUSD = parseFloat(row.cost) || 0.0;
+            const retailPriceUSD = parseFloat(row.retail_price) || 0.0;
 
-            // Assign department_id based on department name
+            const costINR = Math.round(costUSD * exchangeRate);
+            const retailPriceINR = Math.round(retailPriceUSD * exchangeRate);
+
+            // C. Map category fashion images
+            const imageUrl = categoryImages[category] || defaultImage;
+
+            // D. Set department reference
             const deptName = row.department ? row.department.toLowerCase() : '';
             const departmentId = deptName === 'men' ? 1 : 2;
 
-            // Pick a matching fashion image URL, or use a default stylish image
-            const imageUrl = categoryImages[category] || defaultImage;
-
-            // Prepare the product object
+            // E. Build product document object (aligned to report Table 3.2)
             const product = {
+                id,
+                cost: costINR,
+                retail_price: retailPriceINR,
+                category,
                 name,
                 brand,
-                category,
-                price: priceINR,
-                price_usd: priceUSD,
-                image_url: imageUrl,
-                department_id: departmentId
+                department_id: departmentId,
+                sku,
+                distribution_center_id: distributionCenterId,
+                image: imageUrl
             };
 
             batch.push(product);
 
-            // 3. Batch insert when we reach 1000 items
             if (batch.length === BATCH_SIZE) {
-                // Pause stream so DB doesn't get overwhelmed
                 stream.pause();
                 await Product.insertMany(batch);
                 totalCount += batch.length;
                 console.log(`Saved batch of ${batch.length} products. Total saved: ${totalCount}`);
 
-                // Clear the batch memory container and resume streaming
                 batch = [];
                 stream.resume();
             }
         }
 
-        // 4. Insert any remaining products left in the final batch
+        // Insert remaining rows
         if (batch.length > 0) {
             await Product.insertMany(batch);
             totalCount += batch.length;
@@ -115,10 +120,6 @@ async function seedProducts() {
     } finally {
         await mongoose.connection.close();
         console.log('Database connection closed.');
-
-        // Print memory usage to verify we kept it low
-        const memoryUsed = process.memoryUsage().heapUsed / 1024 / 1024;
-        console.log(`Node.js Process memory usage: ${memoryUsed.toFixed(2)} MB`);
     }
 }
 

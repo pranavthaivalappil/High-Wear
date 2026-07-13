@@ -2,44 +2,41 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Home from './components/Home';
+import ProductList from './components/ProductList';
+import DepartmentPage from './components/DepartmentPage';
+import ProductDetails from './components/ProductDetails'; // 👈 Import the details page
 import './App.css';
-
-// Simple temporary placeholders so the router doesn't crash when clicking navbar links
-const CatalogPlaceholder = () => (
-  <div className="container mt-5 text-center glass-panel p-5">
-    <h2 className="text-main fw-bold">👕 Catalog Grid Page</h2>
-    <p className="text-muted">This is where the search sidebar, filter sliders, and product items will go in the next step!</p>
-  </div>
-);
-
-const MenPlaceholder = () => (
-  <div className="container mt-5 text-center glass-panel p-5">
-    <h2 className="text-main fw-bold">👔 Men's Fashion</h2>
-    <p className="text-muted">This page will reuse our catalog component but will be pre-filtered only for department_id = 1 (Men).</p>
-  </div>
-);
-
-const WomenPlaceholder = () => (
-  <div className="container mt-5 text-center glass-panel p-5">
-    <h2 className="text-main fw-bold">👗 Women's Fashion</h2>
-    <p className="text-muted">This page will reuse our catalog component but will be pre-filtered only for department_id = 2 (Women).</p>
-  </div>
-);
 
 function App() {
   return (
     <Router>
       <div className="app-container">
-        {/* Persistent Navigation Bar across all pages */}
+        {/* 1. Persistent Glassmorphic Header */}
         <Navigation />
 
-        {/* Main page content area */}
+        {/* 2. Main Page Router Switchboard */}
         <main className="main-content">
           <Routes>
+            {/* Landing Page */}
             <Route path="/" element={<Home />} />
-            <Route path="/catalog" element={<CatalogPlaceholder />} />
-            <Route path="/men" element={<MenPlaceholder />} />
-            <Route path="/women" element={<WomenPlaceholder />} />
+
+            {/* Main Searchable Catalog */}
+            <Route path="/catalog" element={<ProductList />} />
+
+            {/* Dedicated Product Specifications Page */}
+            <Route path="/products/:id" element={<ProductDetails />} />
+
+            {/* Men's collection (Locked to department_id 1) */}
+            <Route
+              path="/men"
+              element={<DepartmentPage departmentId={1} title="Men's" />}
+            />
+
+            {/* Women's collection (Locked to department_id 2) */}
+            <Route
+              path="/women"
+              element={<DepartmentPage departmentId={2} title="Women's" />}
+            />
           </Routes>
         </main>
       </div>

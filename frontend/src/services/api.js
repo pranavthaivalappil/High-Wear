@@ -12,5 +12,6 @@ export const fetchFilters = () => API.get('/filters');
 
 // Params will hold pagination (?page=1) and search filters (?search=denim&minPrice=200)
 export const fetchProducts = (params) => API.get('/products', { params });
+export const fetchProductById = (id) => API.get(`/products/${id}`); // 👈 Make sure this line is here!
 
 export default API;
