@@ -1,0 +1,16 @@
+import axios from 'axios';
+
+// 1. Create a configured Axios instance
+const API = axios.create({
+    baseURL: 'http://localhost:5000/api' // Point to our Express server
+});
+
+// 2. Define clear helper functions for each endpoint
+export const fetchStats = () => API.get('/stats');
+export const fetchDepartments = () => API.get('/departments');
+export const fetchFilters = () => API.get('/filters');
+
+// Params will hold pagination (?page=1) and search filters (?search=denim&minPrice=200)
+export const fetchProducts = (params) => API.get('/products', { params });
+
+export default API;
