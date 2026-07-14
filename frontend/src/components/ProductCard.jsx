@@ -1,6 +1,9 @@
 import React from 'react';
+import { useCart } from '../context/CartContext';
 
 function ProductCard({ product }) {
+    const { addToCart } = useCart();
+
     return (
         <div className="card glass-card h-100 border-0">
             {/* 1. Product Image Display */}
@@ -33,6 +36,20 @@ function ProductCard({ product }) {
                     <span className="product-price-usd">${product.price_usd ? product.price_usd.toFixed(2) : (product.retail_price / 80).toFixed(2)}</span>
 
                 </div>
+
+
+                {/* 👈 Insert the Quick Add button here: */}
+                <button
+                    className="btn btn-sm glass-btn mt-3 w-100 py-2 fw-semibold d-flex align-items-center justify-content-center"
+                    onClick={(e) => {
+                        e.preventDefault(); // Prevents link navigation to details page
+                        e.stopPropagation(); // Prevents click event from bubbling up to Link
+                        addToCart(product);
+                    }}
+                >
+                    <i className="bi bi-cart-plus-fill me-1.5"></i>
+                    Add to Cart
+                </button>
             </div>
         </div>
     );
