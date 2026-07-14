@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+
 
 function Navigation() {
+    const { cartCount } = useCart();
+
     // 1. Initialize theme state from localStorage (default to light mode if not set)
     const [isDark, setIsDark] = useState(() => {
         return localStorage.getItem('theme') === 'dark';
@@ -23,17 +27,17 @@ function Navigation() {
             <div className="container">
                 {/* Brand Logo with custom Greek Bow symbol on the left */}
                 <Link className="navbar-brand fw-bold text-main d-flex align-items-center" to="/">
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="22" 
-                        height="22" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="url(#logo-gradient)" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        className="me-2.5" 
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="url(#logo-gradient)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="me-2.5"
                         style={{ transform: 'rotate(-45deg)' }}
                     >
                         <defs>
@@ -88,7 +92,24 @@ function Navigation() {
                                 Products
                             </NavLink>
                         </li>
-                        
+                        <li className="nav-item">
+                            <NavLink
+                                className={({ isActive }) =>
+                                    `nav-link px-3 fw-medium text-main d-flex align-items-center ${isActive ? 'active' : ''}`
+                                }
+                                to="/cart"
+                            >
+                                <i className="bi bi-cart-fill me-1.5 opacity-75"></i>
+                                Cart
+                                {cartCount > 0 && (
+                                    <span className="badge rounded-pill bg-danger ms-1.5 px-2 py-1 fs-8">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </NavLink>
+                        </li>
+
+
                         {/* Dropdown Menu for Departments */}
                         <li className="nav-item dropdown">
                             <a
