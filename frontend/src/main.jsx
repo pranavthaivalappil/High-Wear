@@ -5,9 +5,13 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Load Bootstrap JS (handle
 import 'bootstrap-icons/font/bootstrap-icons.css'; // Load Bootstrap Icons font
 import './index.css'; // Load our custom glassmorphism styles
 import App from './App.jsx';
+import { CartProvider } from './context/CartContext.jsx';
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <CartProvider> {/* 👈 Wrap here */}
+      <App />
+    </CartProvider>
   </StrictMode>,
 );
