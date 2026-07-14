@@ -6,6 +6,8 @@ import ProductList from './components/ProductList';
 import DepartmentPage from './components/DepartmentPage';
 import ProductDetails from './components/ProductDetails'; // 👈 Import the details page
 import './App.css';
+import Cart from './components/Cart';
+
 
 function App() {
   return (
@@ -22,6 +24,9 @@ function App() {
 
             {/* Main Searchable Catalog */}
             <Route path="/catalog" element={<ProductList />} />
+
+            {/* 👈 Add this Cart Page Route */}
+            <Route path="/cart" element={<Cart />} />
 
             {/* Dedicated Product Specifications Page */}
             <Route path="/products/:id" element={<ProductDetails />} />
