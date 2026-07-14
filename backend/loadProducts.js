@@ -152,7 +152,8 @@ async function seedProducts() {
                 department_id: departmentId,
                 sku,
                 distribution_center_id: distributionCenterId,
-                image: imageUrl
+                image: imageUrl,
+                inventory: 20 //Give each product a stock of 20
             };
 
             batch.push(product);

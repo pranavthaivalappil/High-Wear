@@ -52,6 +52,11 @@ const productSchema = new mongoose.Schema({
     image: {
         type: String,
         required: true // Unsplash cover image URL
+    },
+    inventory: {
+        type: Number,
+        required: true,
+        default: 20 // 👈 Every product starts with 20 items in stock
     }
 }, {
     timestamps: true
