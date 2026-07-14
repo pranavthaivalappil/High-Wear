@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProductById } from '../services/api';
+import { useCart } from '../context/CartContext';
+
 
 function ProductDetails() {
     const { id } = useParams();
+    const { addToCart } = useCart();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -188,11 +191,12 @@ function ProductDetails() {
 
                                     <button
                                         className="btn glass-btn w-100 py-3 fw-bold fs-5"
-                                        onClick={() => alert(`Added ${product.name} to Cart!`)}
+                                        onClick={() => addToCart(product)} // 👈 Call the real context function here
                                     >
                                         <i className="bi bi-cart-plus-fill me-2"></i>
                                         Add to Cart
                                     </button>
+
                                 </div>
                             </div>
                         </div>
