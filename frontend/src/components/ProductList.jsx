@@ -149,7 +149,7 @@ function ProductList({ departmentId = null }) {
                             style={{ transform: 'rotate(-45deg)' }}
                         >
                             <defs>
-                                <linearGradient id="logo-gradient-catalog" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="logo-gradient-catalog" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
                                     <stop offset="0%" stopColor="var(--primary-color)" />
                                     <stop offset="100%" stopColor="var(--accent-color)" />
                                 </linearGradient>
