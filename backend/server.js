@@ -4,6 +4,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import Product from './models/Product.js';
 import Department from './models/Department.js';
+import Order from './models/Order.js';
+
 
 dotenv.config();
 
@@ -182,6 +184,81 @@ app.get('/api/products/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+// 6. POST /api/orders - Process checkout checkout with ACID transactions
+app.post('/api/orders', async (req, res) => {
+    const { items, customer_info } = req.body;
+
+    if (!items || items.length === 0) {
+        return res.status(400).json({ error: 'Your cart is empty!' });
+    }
+    if (!customer_info || !customer_info.name || !customer_info.email || !customer_info.address) {
+        return res.status(400).json({ error: 'Please provide all customer details!' });
+    }
+
+    // Start a transaction session
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        let totalPrice = 0;
+        const processedItems = [];
+
+        // Verify and deduct stock for each item
+        for (const cartItem of items) {
+            const product = await Product.findById(cartItem.product_id).session(session);
+
+            if (!product) {
+                throw new Error(`Product not found!`);
+            }
+
+            if (product.inventory < cartItem.quantity) {
+                throw new Error(`Insufficient stock for ${product.name}! Only ${product.inventory} items left.`);
+            }
+
+            // Deduct the inventory count
+            product.inventory -= cartItem.quantity;
+            await product.save({ session });
+
+            // Log item totals
+            const itemCost = product.retail_price * cartItem.quantity;
+            totalPrice += itemCost;
+
+            processedItems.push({
+                product_id: product._id,
+                quantity: cartItem.quantity,
+                price_at_purchase: product.retail_price
+            });
+        }
+
+        // Write the Order to the database
+        const order = new Order({
+            items: processedItems,
+            total_price: totalPrice,
+            customer_info,
+            status: 'Completed'
+        });
+        await order.save({ session });
+
+        // Commit transaction (Confirm all updates are permanent)
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(201).json({
+            message: 'Checkout successful!',
+            order_id: order._id,
+            total: totalPrice
+        });
+
+    } catch (error) {
+        // Abort transaction (Rollback any stock deductions)
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Checkout failed, rolled back changes:', error.message);
+        res.status(400).json({ error: error.message });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
