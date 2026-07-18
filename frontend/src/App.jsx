@@ -7,6 +7,8 @@ import DepartmentPage from './components/DepartmentPage';
 import ProductDetails from './components/ProductDetails'; // 👈 Import the details page
 import './App.css';
 import Cart from './components/Cart';
+import Auth from './components/Auth';
+
 
 
 function App() {
@@ -19,14 +21,19 @@ function App() {
         {/* 2. Main Page Router Switchboard */}
         <main className="main-content">
           <Routes>
+            {/* Auth Page*/}
+            <Route path="/login" element={<Auth />} />
             {/* Landing Page */}
             <Route path="/" element={<Home />} />
+
 
             {/* Main Searchable Catalog */}
             <Route path="/catalog" element={<ProductList />} />
 
             {/* 👈 Add this Cart Page Route */}
             <Route path="/cart" element={<Cart />} />
+
+
 
             {/* Dedicated Product Specifications Page */}
             <Route path="/products/:id" element={<ProductDetails />} />

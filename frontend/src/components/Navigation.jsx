@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext'; // 👈 Add this line
+
 
 
 function Navigation() {
     const { cartCount } = useCart();
+    const { user, logout } = useAuth();
 
     // 1. Initialize theme state from localStorage (default to light mode if not set)
     const [isDark, setIsDark] = useState(() => {
@@ -92,6 +95,38 @@ function Navigation() {
                                 Products
                             </NavLink>
                         </li>
+                        {/* Auth Dropdown / Sign In Button */}
+                        {user ? (
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle px-3 fw-medium text-main d-flex align-items-center"
+                                    href="#"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    <i className="bi bi-person-circle me-1.5 opacity-75"></i>
+                                    {user.name}
+                                </a>
+                                <ul className="dropdown-menu glass-panel border-0 shadow mt-2 p-1 dropdown-menu-end">
+                                    <li><h6 className="dropdown-header text-accent text-uppercase fs-9">My Account</h6></li>
+                                    {user.role === 'admin' && (
+                                        <li><Link className="dropdown-item fw-medium py-2 px-3 text-main rounded" to="/admin"><i className="bi bi-speedometer2 me-2"></i>Dashboard</Link></li>
+                                    )}
+                                    <li><Link className="dropdown-item fw-medium py-2 px-3 text-main rounded" to="/orders"><i className="bi bi-box-seam me-2"></i>My Orders</Link></li>
+                                    <li><hr className="dropdown-divider opacity-25" /></li>
+                                    <li><button className="dropdown-item fw-medium py-2 px-3 text-danger rounded bg-transparent border-0 w-100 text-start" onClick={logout}><i className="bi bi-box-arrow-right me-2"></i>Sign Out</button></li>
+                                </ul>
+                            </li>
+                        ) : (
+                            <li className="nav-item">
+                                <Link className="nav-link px-3 fw-medium text-main d-flex align-items-center" to="/login">
+                                    <i className="bi bi-box-arrow-in-right me-1.5 opacity-75"></i>
+                                    Sign In
+                                </Link>
+                            </li>
+                        )}
+
                         <li className="nav-item">
                             <NavLink
                                 className={({ isActive }) =>
