@@ -16,5 +16,5 @@ export const fetchProductById = (id) => API.get(`/products/${id}`); // 👈 Make
 export const createOrder = (orderData) => API.post('/orders', orderData);
 
 export const createRazorpayOrder = (amount) => API.post('/create-razorpay-order', { amount });
-
+export const fetchRecommendations = (id) => API.get(`/products/${id}/recommendations`);
 export default API;

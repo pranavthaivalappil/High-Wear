@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchProductById } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { io } from 'socket.io-client';
+import { fetchProductById, fetchRecommendations } from '../services/api';
+
 
 
 
@@ -12,13 +13,21 @@ function ProductDetails() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [recommendations, setRecommendations] = useState([]);
+
 
     useEffect(() => {
         const getProduct = async () => {
             setLoading(true);
             try {
-                const response = await fetchProductById(id);
-                setProduct(response.data);
+                // Fetch details and suggestions concurrently
+                const [productRes, recsRes] = await Promise.all([
+                    fetchProductById(id),
+                    fetchRecommendations(id)
+                ]);
+
+                setProduct(productRes.data);
+                setRecommendations(recsRes.data);
                 setError(null);
             } catch (err) {
                 console.error('Error fetching product by ID:', err);
@@ -186,20 +195,20 @@ function ProductDetails() {
                                                 <div className="text-main fw-medium fs-7">{lastUpdated}</div>
                                             </div>
                                         </div>
-                                         <div className="col-sm-6">
-                                             <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
-                                                 <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
-                                                     <i className="bi bi-box-seam-fill text-accent me-1"></i>Stock Available
-                                                 </div>
-                                                 <div className="text-main fw-bold fs-7">
-                                                     {product.inventory > 0 ? (
-                                                         <span className="text-success">{product.inventory} items left</span>
-                                                     ) : (
-                                                         <span className="text-danger">Sold Out</span>
-                                                     )}
-                                                 </div>
-                                             </div>
-                                         </div>
+                                        <div className="col-sm-6">
+                                            <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
+                                                <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
+                                                    <i className="bi bi-box-seam-fill text-accent me-1"></i>Stock Available
+                                                </div>
+                                                <div className="text-main fw-bold fs-7">
+                                                    {product.inventory > 0 ? (
+                                                        <span className="text-success">{product.inventory} items left</span>
+                                                    ) : (
+                                                        <span className="text-danger">Sold Out</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
 
@@ -255,6 +264,38 @@ function ProductDetails() {
                                 </button>
                             </div>
                         </div>
+                        {/* --- 🌟 You May Also Like Recommendations --- */}
+                        {recommendations.length > 0 && (
+                            <div className="mt-5 pt-4 border-top border-white border-opacity-10">
+                                <h4 className="text-main fw-bold mb-4">
+                                    <i className="bi bi-stars text-accent me-2"></i>You May Also Like
+                                </h4>
+                                <div className="row g-4">
+                                    {recommendations.map(rec => (
+                                        <div key={rec._id} className="col-6 col-md-3">
+                                            <Link to={`/products/${rec._id}`} className="text-decoration-none text-reset">
+                                                <div className="card glass-card h-100 border-0 p-2.5 hover-scale">
+                                                    <div className="product-card-img-wrapper" style={{ paddingTop: '100%', borderRadius: '10px' }}>
+                                                        <img src={rec.image} alt={rec.name} className="product-card-img" />
+                                                    </div>
+                                                    <div className="card-body p-2 d-flex flex-column">
+                                                        <span className="text-accent fw-bold text-uppercase fs-9" style={{ fontSize: '10px' }}>{rec.brand}</span>
+                                                        <h6 className="text-main text-truncate fw-semibold fs-7 mt-1 mb-2" title={rec.name}>
+                                                            {rec.name}
+                                                        </h6>
+                                                        <div className="mt-auto d-flex justify-content-between align-items-center">
+                                                            <span className="text-main fw-bold fs-7">₹{rec.retail_price.toLocaleString()}</span>
+                                                            <span className="text-muted fs-8" style={{ fontSize: '11px' }}>${(rec.retail_price / 80).toFixed(2)}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
 
                     </div>
                 </div>
