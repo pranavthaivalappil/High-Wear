@@ -5,12 +5,36 @@ import dotenv from 'dotenv';
 import Product from './models/Product.js';
 import Department from './models/Department.js';
 import Order from './models/Order.js';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
 
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Wrap the Express app inside an HTTP server
+const httpServer = createServer(app);
+
+// Initialize Socket.io base station
+const io = new Server(httpServer, {
+    cors: {
+        origin: '*', // Allow connection from any client
+        methods: ['GET', 'POST']
+    }
+});
+
+// Watch for walkie-talkie connections
+io.on('connection', (socket) => {
+    console.log(`Client connected: ${socket.id}`);
+
+    socket.on('disconnect', () => {
+        console.log(`Client disconnected: ${socket.id}`);
+    });
+});
+
 
 // Middleware
 app.use(cors());
@@ -227,7 +251,8 @@ app.post('/api/orders', async (req, res) => {
             processedItems.push({
                 product_id: product._id,
                 quantity: cartItem.quantity,
-                price_at_purchase: product.retail_price
+                price_at_purchase: product.retail_price,
+                new_inventory: product.inventory
             });
         }
 
@@ -243,6 +268,13 @@ app.post('/api/orders', async (req, res) => {
         // Commit transaction (Confirm all updates are permanent)
         await session.commitTransaction();
         session.endSession();
+
+        processedItems.forEach(item => {
+            io.emit('stock_update', {
+                product_id: item.product_id,
+                new_inventory: item.new_inventory
+            });
+        });
 
         res.status(201).json({
             message: 'Checkout successful!',
@@ -260,6 +292,6 @@ app.post('/api/orders', async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
