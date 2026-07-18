@@ -6,12 +6,16 @@ import 'bootstrap-icons/font/bootstrap-icons.css'; // Load Bootstrap Icons font
 import './index.css'; // Load our custom glassmorphism styles
 import App from './App.jsx';
 import { CartProvider } from './context/CartContext.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+
 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <CartProvider> {/* 👈 Wrap here */}
-      <App />
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider> {/* 👈 Wrap here */}
+        <App />
+      </CartProvider>
+    </AuthProvider>
   </StrictMode>,
 );
