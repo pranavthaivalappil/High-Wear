@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import Product from './models/Product.js';
 import Department from './models/Department.js';
 import Order from './models/Order.js';
+import Razorpay from 'razorpay';
+import crypto from 'crypto'; // Node's built-in cryptography library
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
@@ -33,6 +35,12 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`Client disconnected: ${socket.id}`);
     });
+});
+
+// Initialize Razorpay client
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
 
@@ -208,16 +216,48 @@ app.get('/api/products/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+// 6. POST /api/create-razorpay-order - Generate Razorpay Payment Token Order
+app.post('/api/create-razorpay-order', async (req, res) => {
+    const { amount } = req.body;
+    try {
+        const options = {
+            amount: Math.round(amount * 100), // Amount in paise (Razorpay expects smallest currency unit)
+            currency: 'INR',
+            receipt: `receipt_${Date.now()}`
+        };
+        const order = await razorpay.orders.create(options);
+        res.status(201).json(order);
+    } catch (error) {
+        console.error('Error creating Razorpay order:', error);
+        res.status(500).json({ error: 'Failed to create payment order.' });
+    }
+});
 
-// 6. POST /api/orders - Process checkout checkout with ACID transactions
+
+
+// 7. POST /api/orders - Verify payment, process stock, and log invoice
 app.post('/api/orders', async (req, res) => {
-    const { items, customer_info } = req.body;
+    const { items, customer_info, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     if (!items || items.length === 0) {
         return res.status(400).json({ error: 'Your cart is empty!' });
     }
     if (!customer_info || !customer_info.name || !customer_info.email || !customer_info.address) {
         return res.status(400).json({ error: 'Please provide all customer details!' });
+    }
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({ error: 'Payment details are missing!' });
+    }
+
+    // 🔒 Cryptographic Signature Verification
+    const generatedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
+
+    if (generatedSignature !== razorpay_signature) {
+        console.error('Cryptographic signature verification failed!');
+        return res.status(400).json({ error: 'Payment transaction could not be verified!' });
     }
 
     // Start a transaction session
@@ -269,6 +309,7 @@ app.post('/api/orders', async (req, res) => {
         await session.commitTransaction();
         session.endSession();
 
+        // Broadcast stock updates
         processedItems.forEach(item => {
             io.emit('stock_update', {
                 product_id: item.product_id,
@@ -290,7 +331,6 @@ app.post('/api/orders', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-
 
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
