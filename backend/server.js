@@ -9,6 +9,11 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto'; // Node's built-in cryptography library
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from './models/User.js';
+import authMiddleware from './middleware/authMiddleware.js';
+
 
 
 
@@ -53,6 +58,52 @@ const mongoUri = process.env.MONGODB_URI;
 mongoose.connect(mongoUri)
     .then(() => console.log('Connected to MongoDB Atlas successfully.'))
     .catch(err => console.error('Database connection error:', err));
+
+// AUTH: POST /api/auth/register - Create a new user account
+app.post('/api/auth/register', async (req, res) => {
+    const { name, email, password } = req.body;
+    try {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: 'An account with this email already exists.' });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new User({ name, email, password: hashedPassword });
+        await user.save();
+        const token = jwt.sign(
+            { userId: user._id, role: user.role, name: user.name },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    } catch (error) {
+        res.status(500).json({ error: 'Registration failed. Please try again.' });
+    }
+});
+
+// AUTH: POST /api/auth/login - Sign in to existing account
+app.post('/api/auth/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid email or password.' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Invalid email or password.' });
+        }
+        const token = jwt.sign(
+            { userId: user._id, role: user.role, name: user.name },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    } catch (error) {
+        res.status(500).json({ error: 'Login failed. Please try again.' });
+    }
+});
+
 
 // 1. GET /api/stats - Statistics dashboard metrics
 app.get('/api/stats', async (req, res) => {
