@@ -223,7 +223,6 @@ app.get('/api/products/:id/recommendations', async (req, res) => {
         const productId = req.params.id;
         let currentProduct = null;
 
-        // Retrieve current product details
         if (!isNaN(productId)) {
             currentProduct = await Product.findOne({ id: parseInt(productId) }).lean();
         } else if (mongoose.Types.ObjectId.isValid(productId)) {
@@ -234,30 +233,45 @@ app.get('/api/products/:id/recommendations', async (req, res) => {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        // Search for items in the same category, excluding the current product
+        // Extract meaningful keywords from the product name (e.g. "Sunglasses", "Jacket")
+        const nameKeywords = currentProduct.name
+            .toLowerCase()
+            .split(/[\s\-_,]+/) // Split on spaces, hyphens, underscores, commas
+            .filter(word => word.length > 3); // Ignore short filler words like "the", "a"
+
+        // Pull candidates from same department AND same category, excluding current product
         const candidates = await Product.find({
+            department_id: currentProduct.department_id,
             category: currentProduct.category,
             _id: { $ne: currentProduct._id }
-        }).limit(50).lean(); // Pull 50 items to run the scoring match
+        }).limit(100).lean();
 
-        // Score similarity for each candidate
+        // Score each candidate by similarity
         const scored = candidates.map(item => {
             let score = 0;
 
-            // Brand match adds 10 similarity points
+            // 1. Name keyword match (strongest signal — 15 pts per matching word)
+            const itemNameLower = item.name.toLowerCase();
+            nameKeywords.forEach(keyword => {
+                if (itemNameLower.includes(keyword)) {
+                    score += 15;
+                }
+            });
+
+            // 2. Brand match (medium signal — 8 pts)
             if (item.brand.toLowerCase() === currentProduct.brand.toLowerCase()) {
-                score += 10;
+                score += 8;
             }
 
-            // Price closeness score (Closer price = higher score)
+            // 3. Price closeness score (weaker signal — up to 5 pts)
             const priceDiff = Math.abs(item.retail_price - currentProduct.retail_price);
-            const priceSimilarity = Math.max(0, 10 - (priceDiff / 100)); // Subtract points for wide price gaps
+            const priceSimilarity = Math.max(0, 5 - (priceDiff / 200));
             score += priceSimilarity;
 
             return { ...item, similarityScore: score };
         });
 
-        // Sort candidates by highest score and pick the top 4 recommendations
+        // Sort by highest score and return top 4
         const recommendations = scored
             .sort((a, b) => b.similarityScore - a.similarityScore)
             .slice(0, 4);
@@ -269,6 +283,7 @@ app.get('/api/products/:id/recommendations', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 
 
