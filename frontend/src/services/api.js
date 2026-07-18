@@ -15,5 +15,6 @@ export const fetchProducts = (params) => API.get('/products', { params });
 export const fetchProductById = (id) => API.get(`/products/${id}`); // 👈 Make sure this line is here!
 export const createOrder = (orderData) => API.post('/orders', orderData);
 
+export const createRazorpayOrder = (amount) => API.post('/create-razorpay-order', { amount });
 
 export default API;

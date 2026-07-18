@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { createOrder } from '../services/api'; // 👈 Import our new API helper
+import { createOrder, createRazorpayOrder } from '../services/api'; // 👈 Import our new API helper
 
 function Cart() {
     const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
@@ -22,23 +22,66 @@ function Cart() {
         setIsPlacing(true);
 
         try {
-            // Map cart items to the database payload format
-            const payload = {
-                items: cart.map(item => ({
-                    product_id: item.product._id,
-                    quantity: item.quantity
-                })),
-                customer_info: customerInfo
+            // 1. Request a payment token order from our Express backend
+            const rzpOrderResponse = await createRazorpayOrder(cartTotal);
+            const rzpOrder = rzpOrderResponse.data;
+
+            // 2. Configure the Razorpay payment modal options
+            const options = {
+                key: rzpOrder.key_id,
+                amount: rzpOrder.amount,
+                currency: rzpOrder.currency,
+                name: "Apollo Market",
+                description: "Secure Checkout Payment",
+                order_id: rzpOrder.id,
+                
+                // 3. Callback triggered when the customer successfully completes payment
+                handler: async function (response) {
+                    try {
+                        const payload = {
+                            items: cart.map(item => ({
+                                product_id: item.product._id,
+                                quantity: item.quantity
+                            })),
+                            customer_info: customerInfo,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        };
+
+                        // Verify signature and create invoice on the backend
+                        const orderResponse = await createOrder(payload);
+                        setOrderSuccess(orderResponse.data);
+                        clearCart();
+                    } catch (err) {
+                        console.error('Order completion failed:', err);
+                        alert(`Error logging transaction: ${err.response?.data?.error || err.message}`);
+                    } finally {
+                        setIsPlacing(false);
+                    }
+                },
+                prefill: {
+                    name: customerInfo.name,
+                    email: customerInfo.email
+                },
+                theme: {
+                    color: "#6366f1" // Custom Indigo styling to match Apollo Market theme
+                },
+                modal: {
+                    ondismiss: function () {
+                        setIsPlacing(false); // Enable the place order button again if closed
+                    }
+                }
             };
 
-            const response = await createOrder(payload);
-            setOrderSuccess(response.data); // Save the order confirmation details
-            clearCart(); // Clear the local storage cart
+            // 4. Open Razorpay secure window
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+
         } catch (error) {
-            console.error('Checkout failed:', error);
-            const errMsg = error.response?.data?.error || 'An unexpected error occurred during checkout.';
-            alert(`Checkout Error: ${errMsg}`);
-        } finally {
+            console.error('Checkout creation failed:', error);
+            const errMsg = error.response?.data?.error || 'Failed to initiate payment gateway.';
+            alert(`Payment Gateway Error: ${errMsg}`);
             setIsPlacing(false);
         }
     };

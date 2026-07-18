@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProductById } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { io } from 'socket.io-client';
+
 
 
 function ProductDetails() {
@@ -27,6 +29,24 @@ function ProductDetails() {
         };
         getProduct();
     }, [id]);
+
+    useEffect(() => {
+        const socket = io('http://localhost:5000');
+
+        socket.on('stock_update', (data) => {
+            console.log('Received stock update:', data);
+            setProduct(prevProduct => {
+                if (prevProduct && prevProduct._id === data.product_id) {
+                    return { ...prevProduct, inventory: data.new_inventory };
+                }
+                return prevProduct;
+            });
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
     // 🌟 URL Share Handler (Copies direct product route to clipboard or opens Native Share Sheet)
     const handleShare = () => {
@@ -166,7 +186,23 @@ function ProductDetails() {
                                                 <div className="text-main fw-medium fs-7">{lastUpdated}</div>
                                             </div>
                                         </div>
+                                         <div className="col-sm-6">
+                                             <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
+                                                 <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
+                                                     <i className="bi bi-box-seam-fill text-accent me-1"></i>Stock Available
+                                                 </div>
+                                                 <div className="text-main fw-bold fs-7">
+                                                     {product.inventory > 0 ? (
+                                                         <span className="text-success">{product.inventory} items left</span>
+                                                     ) : (
+                                                         <span className="text-danger">Sold Out</span>
+                                                     )}
+                                                 </div>
+                                             </div>
+                                         </div>
                                     </div>
+
+
 
                                     {/* Sizing selection */}
                                     <div className="mb-4">

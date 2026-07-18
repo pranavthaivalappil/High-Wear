@@ -226,7 +226,12 @@ app.post('/api/create-razorpay-order', async (req, res) => {
             receipt: `receipt_${Date.now()}`
         };
         const order = await razorpay.orders.create(options);
-        res.status(201).json(order);
+        res.status(201).json({
+            id: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            key_id: process.env.RAZORPAY_KEY_ID
+        });
     } catch (error) {
         console.error('Error creating Razorpay order:', error);
         res.status(500).json({ error: 'Failed to create payment order.' });
