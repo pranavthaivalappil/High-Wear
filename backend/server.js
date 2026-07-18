@@ -216,6 +216,62 @@ app.get('/api/products/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+// 6. GET /api/products/:id/recommendations - Get content-based product suggestions
+app.get('/api/products/:id/recommendations', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        let currentProduct = null;
+
+        // Retrieve current product details
+        if (!isNaN(productId)) {
+            currentProduct = await Product.findOne({ id: parseInt(productId) }).lean();
+        } else if (mongoose.Types.ObjectId.isValid(productId)) {
+            currentProduct = await Product.findById(productId).lean();
+        }
+
+        if (!currentProduct) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Search for items in the same category, excluding the current product
+        const candidates = await Product.find({
+            category: currentProduct.category,
+            _id: { $ne: currentProduct._id }
+        }).limit(50).lean(); // Pull 50 items to run the scoring match
+
+        // Score similarity for each candidate
+        const scored = candidates.map(item => {
+            let score = 0;
+
+            // Brand match adds 10 similarity points
+            if (item.brand.toLowerCase() === currentProduct.brand.toLowerCase()) {
+                score += 10;
+            }
+
+            // Price closeness score (Closer price = higher score)
+            const priceDiff = Math.abs(item.retail_price - currentProduct.retail_price);
+            const priceSimilarity = Math.max(0, 10 - (priceDiff / 100)); // Subtract points for wide price gaps
+            score += priceSimilarity;
+
+            return { ...item, similarityScore: score };
+        });
+
+        // Sort candidates by highest score and pick the top 4 recommendations
+        const recommendations = scored
+            .sort((a, b) => b.similarityScore - a.similarityScore)
+            .slice(0, 4);
+
+        res.json(recommendations);
+
+    } catch (error) {
+        console.error('Error fetching recommendations:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+
 // 6. POST /api/create-razorpay-order - Generate Razorpay Payment Token Order
 app.post('/api/create-razorpay-order', async (req, res) => {
     const { amount } = req.body;
