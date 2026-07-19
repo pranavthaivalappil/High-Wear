@@ -19,4 +19,7 @@ export const createRazorpayOrder = (amount) => API.post('/create-razorpay-order'
 export const registerUser = (data) => API.post('/auth/register', data);
 export const loginUser = (data) => API.post('/auth/login', data);
 export const fetchRecommendations = (id) => API.get(`/products/${id}/recommendations`);
+export const fetchMyOrders = (token) => API.get('/orders/me', {
+    headers: { Authorization: `Bearer ${token}` }
+});
 export default API;

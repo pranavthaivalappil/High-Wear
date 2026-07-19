@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { createOrder, createRazorpayOrder } from '../services/api'; // 👈 Import our new API helper
+import { useAuth } from '../context/AuthContext';
 
 function Cart() {
     const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
+    const { user } = useAuth();
+
 
     // States for handling checkout flow
     const [checkoutMode, setCheckoutMode] = useState(false);
@@ -34,11 +37,12 @@ function Cart() {
                 name: "Apollo Market",
                 description: "Secure Checkout Payment",
                 order_id: rzpOrder.id,
-                
+
                 // 3. Callback triggered when the customer successfully completes payment
                 handler: async function (response) {
                     try {
                         const payload = {
+                            user_id: user ? user.id : null, // 👈 If logged in, attach ID. Otherwise null
                             items: cart.map(item => ({
                                 product_id: item.product._id,
                                 quantity: item.quantity

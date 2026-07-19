@@ -360,11 +360,28 @@ app.post('/api/create-razorpay-order', async (req, res) => {
     }
 });
 
+// 6.5 GET /api/orders/me - Fetch orders for the logged-in user
+// We use authMiddleware here so ONLY logged-in users can access this route
+app.get('/api/orders/me', authMiddleware, async (req, res) => {
+    try {
+        // req.user.userId comes from the JWT token decoded by the bouncer!
+        const orders = await Order.find({ user_id: req.user.userId })
+            .sort({ createdAt: -1 }) // Sort by newest first
+            .populate('items.product_id', 'name brand image'); // Pull in product details
+
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching user orders:', error);
+        res.status(500).json({ error: 'Failed to fetch your orders.' });
+    }
+});
+
+
 
 
 // 7. POST /api/orders - Verify payment, process stock, and log invoice
 app.post('/api/orders', async (req, res) => {
-    const { items, customer_info, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { user_id, items, customer_info, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     if (!items || items.length === 0) {
         return res.status(400).json({ error: 'Your cart is empty!' });
@@ -425,6 +442,7 @@ app.post('/api/orders', async (req, res) => {
 
         // Write the Order to the database
         const order = new Order({
+            user_id: user_id || null,
             items: processedItems,
             total_price: totalPrice,
             customer_info,

@@ -19,6 +19,12 @@ const orderItemSchema = new mongoose.Schema({
 
 // Main Order invoice schema
 const orderSchema = new mongoose.Schema({
+    // 👇 ADD THIS NEW FIELD
+    user_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false // Not required, so guests can still checkout!
+    },
     items: [orderItemSchema],
     total_price: {
         type: Number,

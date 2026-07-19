@@ -8,6 +8,8 @@ import ProductDetails from './components/ProductDetails'; // 👈 Import the det
 import './App.css';
 import Cart from './components/Cart';
 import Auth from './components/Auth';
+import MyOrders from './components/MyOrders';
+
 
 
 
@@ -25,7 +27,8 @@ function App() {
             <Route path="/login" element={<Auth />} />
             {/* Landing Page */}
             <Route path="/" element={<Home />} />
-
+            {/* {MyOrders Page} */}
+            <Route path="/orders" element={<MyOrders />} />
 
             {/* Main Searchable Catalog */}
             <Route path="/catalog" element={<ProductList />} />
