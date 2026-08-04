@@ -1,113 +1,145 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // <-- Update this import
 import { Link } from 'react-router-dom';
-import { fetchStats } from '../services/api';
+import { fetchProducts } from '../services/api';    // <-- Add this import
+import { useCart } from '../context/CartContext';   // <-- Add this so we can add to cart!
+
 
 function Home() {
-    const [stats, setStats] = useState({ totalProducts: 0, totalDepartments: 0, totalBrands: 0 });
+    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const { addToCart } = useCart();
 
-    // Fetch database statistics when the component mounts
     useEffect(() => {
-        const getStats = async () => {
+        const getProducts = async () => {
             try {
-                setLoading(true);
-                const response = await fetchStats();
-                setStats(response.data);
-                setError(null);
+                // Fetch only 4 products for the home page carousel
+                const response = await fetchProducts({ limit: 4 });
+                setProducts(response.data.products);
             } catch (err) {
-                console.error('Error fetching statistics:', err);
-                setError('Failed to fetch store metrics. Make sure the backend server is running on port 5000!');
+                console.error('Failed to fetch products', err);
             } finally {
                 setLoading(false);
             }
         };
-        getStats();
+
+        getProducts();
     }, []);
 
     return (
-        <div className="container mt-5">
-            {/* 1. Hero Section */}
-            <div className="row justify-content-center text-center mb-5">
-                <div className="col-md-10">
-                    <div className="hero-section p-5 mb-4 position-relative overflow-hidden">
-                        <div className="position-relative z-index-1">
-                            <h1 className="display-4 fw-bold text-white mb-3">
-                                Welcome to <span>Apollo Market</span>
-                            </h1>
-                            <p className="lead text-white-50 mb-4 fs-5">
-                                Step into the future of fashion. Browse through over 29,000 products
-                                across premium brands, categorized and filtered instantly.
-                            </p>
-                            <Link to="/catalog" className="btn btn-light btn-lg px-5 py-3 fw-bold border-0 shadow-sm" style={{ borderRadius: '12px', color: '#4f46e5' }}>
-                                <i className="bi bi-bag-fill me-2"></i>
-                                Explore Catalog
-                            </Link>
-                        </div>
+        <div style={{ paddingBottom: 'var(--spacing-xxl)' }}>
+
+            {/* 1. Hero Section ("BUILT FROM THE STREET") */}
+            <section style={{ position: 'relative', height: '90vh', overflow: 'hidden' }}>
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        zIndex: 0
+                    }}
+                >
+                    <source src="/hero.mp4" type="video/mp4" />
+                </video>
+
+                {/* Central circular mask/cutout effect could go here, simulating with a mix-blend-mode or clip-path div */}
+                <div style={{
+                    position: 'absolute',
+                    top: '20%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '60vw',
+                    height: '60vw',
+                    maxWidth: '800px',
+                    maxHeight: '800px',
+                    borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.1)',
+                    backdropFilter: 'contrast(1.5) grayscale(1)',
+                    zIndex: 1,
+                    pointerEvents: 'none'
+                }}></div>
+
+                <div className="container" style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <h1 className="heading-massive" style={{ color: 'var(--text-light)', mixBlendMode: 'difference' }}>
+                        BUILT FROM THE STREET
+                    </h1>
+                </div>
+
+                <div style={{
+                    position: 'absolute',
+                    bottom: 'var(--spacing-lg)',
+                    left: '0',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '0 var(--spacing-md)',
+                    zIndex: 3
+                }}>
+                    <div className="bracket-wrap text-tiny" style={{ color: 'var(--text-light)' }}>
+                        WORLDWIDE
+                    </div>
+                    <div className="bracket-wrap text-tiny" style={{ color: 'var(--text-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>
+                        REFINED FOR NOW
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* 2. Live Statistics Dashboard */}
-            <h3 className="text-center fw-bold text-main mb-4">
-                <i className="bi bi-activity text-accent me-2"></i>
-                Live Metrics Dashboard
-            </h3>
 
-            {/* Display Loading Spinner */}
-            {loading && (
-                <div className="text-center my-5">
-                    <div className="spinner-border text-accent" role="status" style={{ width: '3rem', height: '3rem' }}>
-                        <span className="visually-hidden">Loading metrics...</span>
-                    </div>
-                    <p className="text-muted mt-3">Connecting to catalog database...</p>
+            {/* 3. Product Carousel ("CURRENT SEASON") */}
+            <section className="container" style={{ padding: 'var(--spacing-xl) 0' }}>
+                <div className="flex-between" style={{ borderBottom: '2px solid var(--text-main)', paddingBottom: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)' }}>
+                    <h2 className="heading-medium">CURRENT SEASON</h2>
+                    <Link to="/shop" className="text-tiny hover-invert bracket-wrap">VIEW ALL</Link>
                 </div>
-            )}
-
-            {/* Display Connection Error Warning */}
-            {error && (
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="alert alert-danger glass-panel border-danger text-center p-4" role="alert">
-                            <i className="bi bi-exclamation-triangle-fill text-danger fs-1 d-block mb-3"></i>
-                            <h5 className="fw-bold">Database Server Offline</h5>
-                            <p className="mb-0 text-muted">{error}</p>
-                        </div>
-                    </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-sm)' }}>
+                    {loading ? (
+                        <div className="text-mono fw-bold">[ FETCHING INVENTORY... ]</div>
+                    ) : (
+                        products.map((product) => (
+                            <div key={product._id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                                <Link to={`/products/${product._id}`} style={{ backgroundColor: 'var(--bg-accent)', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                    <img src={product.image || 'https://via.placeholder.com/400'} alt={product.name} style={{ mixBlendMode: 'multiply', width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </Link>
+                                <div className="flex-between text-mono text-tiny" style={{ fontWeight: 'bold' }}>
+                                    <span>{product.name}</span>
+                                    <span>${product.price}</span>
+                                </div>
+                                <button
+                                    className="hover-invert text-mono fw-bold"
+                                    style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', cursor: 'pointer' }}
+                                    onClick={() => addToCart(product, 1)}
+                                >
+                                    [ ADD TO CART ]
+                                </button>
+                            </div>
+                        ))
+                    )}
                 </div>
-            )}
 
-            {/* Display Stats Grid when loaded successfully */}
-            {!loading && !error && (
-                <div className="row justify-content-center g-4 mb-5">
-                    {/* Card 1: Total Products */}
-                    <div className="col-md-4 col-sm-6">
-                        <div className="glass-card stat-card">
-                            <i className="bi bi-box-seam-fill stat-icon"></i>
-                            <div className="stat-value">{stats.totalProducts.toLocaleString()}</div>
-                            <div className="stat-label">Total Products</div>
+            </section>
+
+
+
+            {/* 5. Full-Width Banner ("WORN IN THE WILD") */}
+            <section style={{ padding: 'var(--spacing-xl) 0', borderTop: '2px solid var(--text-main)', borderBottom: '2px solid var(--text-main)', marginTop: 'var(--spacing-xl)' }}>
+                <div className="container flex-between">
+                    <h2 className="heading-large" style={{ flex: 1 }}>WORN IN</h2>
+                    <div style={{ flex: 2, position: 'relative', height: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <img src="https://images.unsplash.com/photo-1478147427282-58a87a120781?q=80&w=1200&auto=format&fit=crop" alt="Wild Banner" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }} />
+                        <div className="heading-medium bracket-wrap" style={{ position: 'relative', zIndex: 2, color: 'var(--text-light)', mixBlendMode: 'difference' }}>
+                            OUTPOST
                         </div>
                     </div>
-
-                    {/* Card 2: Brands */}
-                    <div className="col-md-4 col-sm-6">
-                        <div className="glass-card stat-card">
-                            <i className="bi bi-tags-fill stat-icon"></i>
-                            <div className="stat-value">{stats.totalBrands}</div>
-                            <div className="stat-label">Curated Brands</div>
-                        </div>
-                    </div>
-
-                    {/* Card 3: Departments */}
-                    <div className="col-md-4 col-sm-6">
-                        <div className="glass-card stat-card">
-                            <i className="bi bi-gender-ambiguous stat-icon"></i>
-                            <div className="stat-value">{stats.totalDepartments}</div>
-                            <div className="stat-label">Departments</div>
-                        </div>
-                    </div>
+                    <h2 className="heading-large" style={{ flex: 1, textAlign: 'right' }}>THE WILD</h2>
                 </div>
-            )}
+            </section>
+
         </div>
     );
 }

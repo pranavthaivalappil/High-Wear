@@ -4,9 +4,6 @@ import { useCart } from '../context/CartContext';
 import { io } from 'socket.io-client';
 import { fetchProductById, fetchRecommendations } from '../services/api';
 
-
-
-
 function ProductDetails() {
     const { id } = useParams();
     const { addToCart } = useCart();
@@ -14,7 +11,6 @@ function ProductDetails() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [recommendations, setRecommendations] = useState([]);
-
 
     useEffect(() => {
         const getProduct = async () => {
@@ -78,228 +74,171 @@ function ProductDetails() {
 
     if (loading) {
         return (
-            <div className="text-center py-5 my-5">
-                <div className="spinner-border text-accent" role="status" style={{ width: '3rem', height: '3rem' }}>
-                    <span className="visually-hidden">Loading product details...</span>
-                </div>
+            <div className="container" style={{ paddingTop: 'var(--spacing-xxl)', paddingBottom: 'var(--spacing-xxl)', textAlign: 'center' }}>
+                <div className="text-mono fw-bold">[ FETCHING DOSSIER... ]</div>
             </div>
         );
     }
 
     if (error || !product) {
         return (
-            <div className="container mt-5">
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="alert alert-danger glass-panel border-danger text-center p-5" role="alert">
-                            <i className="bi bi-x-circle-fill text-danger display-3 d-block mb-3"></i>
-                            <h4 className="fw-bold">Product Not Found</h4>
-                            <p className="text-muted mb-4">{error || 'The requested product could not be located in our inventory.'}</p>
-                            <Link to="/catalog" className="btn glass-btn">
-                                <i className="bi bi-arrow-left me-2"></i>Back to Catalog
-                            </Link>
-                        </div>
-                    </div>
+            <div className="container" style={{ paddingTop: 'var(--spacing-xxl)', paddingBottom: 'var(--spacing-xxl)', textAlign: 'center' }}>
+                <h3 className="heading-massive" style={{ marginBottom: 'var(--spacing-md)' }}>FILE NOT FOUND</h3>
+                <div className="text-mono" style={{ backgroundColor: 'var(--text-main)', color: 'var(--text-light)', padding: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)', display: 'inline-block' }}>
+                    [ ERROR ]: {error || 'The requested product could not be located.'}
                 </div>
+                <br />
+                <Link to="/shop" className="hover-invert" style={{ display: 'inline-block', border: '2px solid var(--text-main)', padding: 'var(--spacing-sm) var(--spacing-md)', fontWeight: 'bold' }}>
+                    RETURN TO ARCHIVE
+                </Link>
             </div>
         );
     }
 
     const dateAdded = new Date(product.createdAt).toLocaleDateString('en-IN', {
-        day: 'numeric', month: 'long', year: 'numeric'
-    });
+        day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '.');
+    
     const lastUpdated = new Date(product.updatedAt).toLocaleDateString('en-IN', {
-        day: 'numeric', month: 'long', year: 'numeric'
-    });
+        day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '.');
 
     return (
-        <div className="container mt-5">
-            <div className="row justify-content-center">
-                <div className="col-lg-10">
-                    {/* Glass Container */}
-                    <div className="glass-panel p-4 p-md-5">
-                        <div className="row g-4">
+        <div className="container" style={{ paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xxl)' }}>
+            
+            {/* Top Navigation */}
+            <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+                <Link to="/shop" className="text-tiny hover-invert bracket-wrap">
+                    RETURN TO CATALOG
+                </Link>
+            </div>
 
-                            {/* Left Column: Image view */}
-                            <div className="col-md-5 pe-md-4">
-                                <div className="product-card-img-wrapper" style={{ paddingTop: '110%', borderRadius: '16px' }}>
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="product-card-img"
-                                    />
-                                </div>
-                                <div className="mt-4 d-grid">
-                                    <Link to="/catalog" className="btn glass-btn-secondary py-2.5">
-                                        <i className="bi bi-arrow-left me-2"></i>
-                                        Back to Products
-                                    </Link>
-                                </div>
+            {/* Main 2-Column Product Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-xl)', marginBottom: 'var(--spacing-xxl)' }}>
+                
+                {/* Left Column: Image view */}
+                <div style={{ backgroundColor: 'var(--bg-accent)', border: '2px solid var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'start', height: 'auto', maxHeight: '70vh' }}>
+                    <img
+                        src={product.image || 'https://via.placeholder.com/600'}
+                        alt={product.name}
+                        style={{ width: '100%', height: '100%', maxHeight: '70vh', objectFit: 'contain', mixBlendMode: 'multiply', padding: 'var(--spacing-md)' }}
+                    />
+                </div>
+
+                {/* Right Column: Details & Actions */}
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                        <div className="text-tiny bracket-wrap" style={{ marginBottom: 'var(--spacing-xs)', display: 'inline-block' }}>
+                            BRAND: {product.brand || 'UNKNOWN'}
+                        </div>
+                        <h1 className="heading-medium" style={{ marginBottom: 'var(--spacing-md)', wordWrap: 'break-word', fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+                            {product.name}
+                        </h1>
+
+                        {/* Specifications Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-lg)' }}>
+                            <div className="text-mono" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)' }}>
+                                <div className="text-tiny" style={{ opacity: 0.7 }}>CATEGORY</div>
+                                <div className="fw-bold">{product.category}</div>
                             </div>
-
-                            {/* Right Column: Spec Grid & Buy controls */}
-                            <div className="col-md-7 d-flex flex-column justify-content-between">
-                                <div>
-                                    <span className="text-accent fw-bold text-uppercase fs-7 letter-spacing-1.5">
-                                        {product.brand}
-                                    </span>
-                                    <h2 className="text-main fw-bold mt-1 mb-3">{product.name}</h2>
-
-                                    <div className="mb-4 d-flex flex-wrap gap-2">
-                                        <span className="badge rounded-pill bg-light-subtle text-muted border border-white border-opacity-10 py-1.5 px-3">
-                                            Category: {product.category}
-                                        </span>
-                                        <span className="badge rounded-pill bg-light-subtle text-muted border border-white border-opacity-10 py-1.5 px-3">
-                                            Dept: {product.department_name}
-                                        </span>
-                                    </div>
-
-                                    {/* Specifications Grid */}
-                                    <div className="row g-3 mb-4">
-                                        <div className="col-sm-6">
-                                            <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
-                                                <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
-                                                    <i className="bi bi-hash text-accent me-1"></i>Product SKU
-                                                </div>
-                                                <div className="text-main fw-medium fs-7 text-truncate" title={product.sku}>
-                                                    {product.sku}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-sm-6">
-                                            <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
-                                                <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
-                                                    <i className="bi bi-geo-alt-fill text-accent me-1"></i>Distribution Center
-                                                </div>
-                                                <div className="text-main fw-medium fs-7">
-                                                    Center #{product.distribution_center_id}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-sm-6">
-                                            <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
-                                                <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
-                                                    <i className="bi bi-calendar-event text-accent me-1"></i>Added Date
-                                                </div>
-                                                <div className="text-main fw-medium fs-7">{dateAdded}</div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-sm-6">
-                                            <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
-                                                <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
-                                                    <i className="bi bi-calendar-check text-accent me-1"></i>Last Updated
-                                                </div>
-                                                <div className="text-main fw-medium fs-7">{lastUpdated}</div>
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-6">
-                                            <div className="glass-panel p-3 h-100 bg-opacity-25" style={{ borderRadius: '10px' }}>
-                                                <div className="text-muted fs-8 text-uppercase fw-semibold mb-1">
-                                                    <i className="bi bi-box-seam-fill text-accent me-1"></i>Stock Available
-                                                </div>
-                                                <div className="text-main fw-bold fs-7">
-                                                    {product.inventory > 0 ? (
-                                                        <span className="text-success">{product.inventory} items left</span>
-                                                    ) : (
-                                                        <span className="text-danger">Sold Out</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-
-                                    {/* Sizing selection */}
-                                    <div className="mb-4">
-                                        <h6 className="text-muted fw-bold text-uppercase fs-8 mb-2">Select Size</h6>
-                                        <span className="size-pill">S</span>
-                                        <span className="size-pill">M</span>
-                                        <span className="size-pill">L</span>
-                                        <span className="size-pill">XL</span>
-                                    </div>
-                                </div>
-
-                                {/* Price tag & Cart Button */}
-                                <div>
-                                    <div className="d-flex align-items-baseline gap-2 mb-3">
-                                        <h1 className="text-main fw-bold m-0 display-5">
-                                            ₹{product.retail_price.toLocaleString()}
-                                        </h1>
-                                        <span className="text-muted text-decoration-line-through fs-5">
-                                            ${product.price_usd ? product.price_usd.toFixed(2) : (product.retail_price / 80).toFixed(2)}
-                                        </span>
-                                    </div>
-
-                                    <button
-                                        className="btn glass-btn w-100 py-3 fw-bold fs-5"
-                                        onClick={() => addToCart(product)} // 👈 Call the real context function here
-                                    >
-                                        <i className="bi bi-cart-plus-fill me-2"></i>
-                                        Add to Cart
-                                    </button>
-
+                            <div className="text-mono" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)' }}>
+                                <div className="text-tiny" style={{ opacity: 0.7 }}>DEPARTMENT</div>
+                                <div className="fw-bold">{product.department_name}</div>
+                            </div>
+                            <div className="text-mono" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)' }}>
+                                <div className="text-tiny" style={{ opacity: 0.7 }}>SKU</div>
+                                <div className="fw-bold text-truncate" title={product.sku}>{product.sku}</div>
+                            </div>
+                            <div className="text-mono" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)' }}>
+                                <div className="text-tiny" style={{ opacity: 0.7 }}>DIST. CENTER</div>
+                                <div className="fw-bold">#{product.distribution_center_id}</div>
+                            </div>
+                            <div className="text-mono" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)' }}>
+                                <div className="text-tiny" style={{ opacity: 0.7 }}>ADDED / UPDATED</div>
+                                <div className="fw-bold">{dateAdded} / {lastUpdated}</div>
+                            </div>
+                            <div className="text-mono" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)', backgroundColor: product.inventory > 0 ? 'transparent' : 'var(--text-main)', color: product.inventory > 0 ? 'var(--text-main)' : 'var(--text-light)' }}>
+                                <div className="text-tiny" style={{ opacity: 0.7 }}>INVENTORY STATUS</div>
+                                <div className="fw-bold">
+                                    {product.inventory > 0 ? `[ ${product.inventory} UNITS AVAILABLE ]` : '[ OUT OF STOCK ]'}
                                 </div>
                             </div>
                         </div>
 
-                        {/* --- 🌟 bottom Actions Row (Matching Report Fig 5.5) --- */}
-                        <div className="row g-3 mt-4 pt-4 border-top border-white border-opacity-10 text-center">
-                            <div className="col-md-4">
-                                <button className="btn glass-btn-secondary w-100 py-2.5" onClick={handleShare}>
-                                    <i className="bi bi-share-fill me-2"></i>Share Product
-                                </button>
-                            </div>
-                            <div className="col-md-4">
-                                <button className="btn glass-btn-secondary w-100 py-2.5" onClick={() => alert('Added to Favorites!')}>
-                                    <i className="bi bi-heart-fill me-2"></i>Add to Favorites
-                                </button>
-                            </div>
-                            <div className="col-md-4">
-                                <button className="btn glass-btn-secondary w-100 py-2.5" onClick={() => window.print()}>
-                                    <i className="bi bi-printer-fill me-2"></i>Print Details
-                                </button>
+                        {/* Sizing selection */}
+                        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+                            <div className="text-tiny bracket-wrap" style={{ marginBottom: 'var(--spacing-xs)' }}>SELECT SIZE</div>
+                            <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
+                                {['S', 'M', 'L', 'XL'].map(size => (
+                                    <div key={size} className="hover-invert text-mono fw-bold" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--text-main)', cursor: 'pointer' }}>
+                                        {size}
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        {/* --- 🌟 You May Also Like Recommendations --- */}
-                        {recommendations.length > 0 && (
-                            <div className="mt-5 pt-4 border-top border-white border-opacity-10">
-                                <h4 className="text-main fw-bold mb-4">
-                                    <i className="bi bi-stars text-accent me-2"></i>You May Also Like
-                                </h4>
-                                <div className="row g-4">
-                                    {recommendations.map(rec => (
-                                        <div key={rec._id} className="col-6 col-md-3">
-                                            <Link to={`/products/${rec._id}`} className="text-decoration-none text-reset">
-                                                <div className="card glass-card h-100 border-0 p-2.5 hover-scale">
-                                                    <div className="product-card-img-wrapper" style={{ paddingTop: '100%', borderRadius: '10px' }}>
-                                                        <img src={rec.image} alt={rec.name} className="product-card-img" />
-                                                    </div>
-                                                    <div className="card-body p-2 d-flex flex-column">
-                                                        <span className="text-accent fw-bold text-uppercase fs-9" style={{ fontSize: '10px' }}>{rec.brand}</span>
-                                                        <h6 className="text-main text-truncate fw-semibold fs-7 mt-1 mb-2" title={rec.name}>
-                                                            {rec.name}
-                                                        </h6>
-                                                        <div className="mt-auto d-flex justify-content-between align-items-center">
-                                                            <span className="text-main fw-bold fs-7">₹{rec.retail_price.toLocaleString()}</span>
-                                                            <span className="text-muted fs-8" style={{ fontSize: '11px' }}>${(rec.retail_price / 80).toFixed(2)}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    ))}
-                                </div>
+                    </div>
+
+                    {/* Price tag & Cart Button */}
+                    <div style={{ borderTop: '2px solid var(--text-main)', paddingTop: 'var(--spacing-md)' }}>
+                        <div className="flex-between" style={{ alignItems: 'flex-end', marginBottom: 'var(--spacing-md)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span className="text-tiny" style={{ textDecoration: 'line-through', opacity: 0.5 }}>
+                                    USD ${product.price_usd ? product.price_usd.toFixed(2) : (product.retail_price / 80).toFixed(2)}
+                                </span>
+                                <h1 className="heading-medium m-0" style={{ fontSize: 'clamp(1.8rem, 3vw, 2.5rem)' }}>
+                                    ${product.retail_price.toLocaleString()}
+                                </h1>
                             </div>
-                        )}
+                        </div>
 
-
+                        <button
+                            className="hover-invert"
+                            style={{ width: '100%', border: '2px solid var(--text-main)', padding: 'var(--spacing-md)', fontSize: '1.2rem', fontWeight: 'bold' }}
+                            onClick={() => addToCart(product)}
+                            disabled={product.inventory <= 0}
+                        >
+                            {product.inventory > 0 ? '[ ACQUIRE ITEM ]' : '[ UNAVAILABLE ]'}
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {/* Action Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--spacing-sm)', borderTop: '2px solid var(--text-main)', borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-md) 0', marginBottom: 'var(--spacing-xxl)' }}>
+                <button className="hover-invert text-mono fw-bold" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-sm)' }} onClick={handleShare}>
+                    [ INITIATE SHARE ]
+                </button>
+                <button className="hover-invert text-mono fw-bold" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-sm)' }} onClick={() => alert('Added to Dossier!')}>
+                    [ FLAG FOR REVIEW ]
+                </button>
+                <button className="hover-invert text-mono fw-bold" style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-sm)' }} onClick={() => window.print()}>
+                    [ PRINT SCHEMATIC ]
+                </button>
+            </div>
+
+            {/* Recommendations */}
+            {recommendations.length > 0 && (
+                <div>
+                    <h2 className="heading-medium" style={{ borderBottom: '2px solid var(--text-main)', paddingBottom: 'var(--spacing-xs)', marginBottom: 'var(--spacing-lg)' }}>
+                        RELATED ACQUISITIONS
+                    </h2>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-sm)' }}>
+                        {recommendations.map((rec) => (
+                            <div key={rec._id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                                <Link to={`/products/${rec._id}`} style={{ backgroundColor: 'var(--bg-accent)', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                    <img src={rec.image || 'https://via.placeholder.com/400'} alt={rec.name} style={{ mixBlendMode: 'multiply', width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </Link>
+                                <div className="flex-between text-mono text-tiny" style={{ fontWeight: 'bold' }}>
+                                    <span>{rec.name}</span>
+                                    <span>${rec.retail_price}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

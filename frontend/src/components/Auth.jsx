@@ -36,89 +36,97 @@ function Auth() {
     };
 
     return (
-        <div className="container mt-5 pt-4">
-            <div className="row justify-content-center">
-                <div className="col-md-5">
-                    <div className="glass-panel p-5">
-                        <div className="text-center mb-4">
-                            <i className="bi bi-person-circle text-accent display-4"></i>
-                            <h3 className="text-main fw-bold mt-2">
-                                {isLogin ? 'Welcome Back!' : 'Create Account'}
-                            </h3>
-                            <p className="text-muted fs-7">
-                                {isLogin ? 'Sign in to your Apollo Market account' : 'Join Apollo Market today'}
-                            </p>
-                        </div>
-
-                        {error && (
-                            <div className="alert alert-danger py-2 fs-7" role="alert">
-                                <i className="bi bi-exclamation-circle me-2"></i>{error}
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSubmit}>
-                            {!isLogin && (
-                                <div className="mb-3">
-                                    <label className="form-label text-muted fs-7 fw-semibold">Full Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        className="form-control glass-input"
-                                        placeholder="Pranav Thaivalappil"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            )}
-                            <div className="mb-3">
-                                <label className="form-label text-muted fs-7 fw-semibold">Email Address</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    className="form-control glass-input"
-                                    placeholder="you@example.com"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="form-label text-muted fs-7 fw-semibold">Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    className="form-control glass-input"
-                                    placeholder="••••••••"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="btn glass-btn w-100 py-3 fw-bold"
-                                disabled={loading}
-                            >
-                                {loading
-                                    ? <><span className="spinner-border spinner-border-sm me-2"></span>Please wait...</>
-                                    : isLogin ? 'Sign In' : 'Create Account'
-                                }
-                            </button>
-                        </form>
-
-                        <div className="text-center mt-4">
-                            <span className="text-muted fs-7">
-                                {isLogin ? "Don't have an account? " : "Already have an account? "}
-                            </span>
-                            <button
-                                className="btn btn-link text-accent fs-7 p-0 fw-semibold"
-                                onClick={() => { setIsLogin(!isLogin); setError(null); }}
-                            >
-                                {isLogin ? 'Register here' : 'Sign in'}
-                            </button>
+        <div className="container" style={{ paddingTop: 'var(--spacing-xxl)', paddingBottom: 'var(--spacing-xxl)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <div style={{ width: '100%', maxWidth: '500px', border: '2px solid var(--text-main)', padding: 'var(--spacing-xl)' }}>
+                    
+                    <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
+                        <h2 className="heading-large" style={{ marginBottom: 'var(--spacing-xs)' }}>
+                            {isLogin ? 'AUTHENTICATE' : 'REGISTER'}
+                        </h2>
+                        <div className="text-tiny bracket-wrap">
+                            {isLogin ? 'EXISTING OPERATIVE' : 'NEW OPERATIVE'}
                         </div>
                     </div>
+
+                    {error && (
+                        <div className="text-mono" style={{ backgroundColor: 'var(--text-main)', color: 'var(--text-light)', padding: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                            [ ERROR ]: {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                        {!isLogin && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                                <label className="text-tiny bracket-wrap">FULL NAME</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    style={{ borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-sm) 0', fontSize: '1.2rem' }}
+                                    placeholder="JOHN DOE"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                            <label className="text-tiny bracket-wrap">EMAIL ADDRESS</label>
+                            <input
+                                type="email"
+                                name="email"
+                                style={{ borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-sm) 0', fontSize: '1.2rem' }}
+                                placeholder="OPERATIVE@HIGHWEAR.COM"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                            <label className="text-tiny bracket-wrap">PASSWORD</label>
+                            <input
+                                type="password"
+                                name="password"
+                                style={{ borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-sm) 0', fontSize: '1.2rem', letterSpacing: '0.2em' }}
+                                placeholder="••••••••"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="hover-invert"
+                            style={{ 
+                                marginTop: 'var(--spacing-md)',
+                                border: '2px solid var(--text-main)', 
+                                padding: 'var(--spacing-md)', 
+                                fontSize: '1.2rem', 
+                                fontWeight: 'bold',
+                                cursor: 'pointer'
+                            }}
+                            disabled={loading}
+                        >
+                            {loading
+                                ? '[ PROCESSING... ]'
+                                : isLogin ? 'SIGN IN' : 'CREATE ACCOUNT'
+                            }
+                        </button>
+                    </form>
+
+                    <div style={{ textAlign: 'center', marginTop: 'var(--spacing-lg)', borderTop: '2px solid var(--text-main)', paddingTop: 'var(--spacing-md)' }}>
+                        <span className="text-mono" style={{ fontSize: '0.8rem', marginRight: 'var(--spacing-sm)' }}>
+                            {isLogin ? "DON'T HAVE AN ACCOUNT?" : "ALREADY HAVE AN ACCOUNT?"}
+                        </span>
+                        <button
+                            className="hover-invert"
+                            style={{ padding: '2px 6px', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', border: '1px solid var(--text-main)' }}
+                            onClick={() => { setIsLogin(!isLogin); setError(null); }}
+                        >
+                            {isLogin ? 'REGISTER' : 'SIGN IN'}
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>

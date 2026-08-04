@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchFilters, fetchProducts } from '../services/api';
 import ProductCard from './ProductCard';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 
 function ProductList({ departmentId = null }) {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +22,19 @@ function ProductList({ departmentId = null }) {
     const [totalPages, setTotalPages] = useState(1);
     const [totalProducts, setTotalProducts] = useState(0);
     const [loading, setLoading] = useState(true);
+    const listRef = useRef();
+
+    useGSAP(() => {
+        if (products.length > 0 && listRef.current) {
+            gsap.from('.product-link-item', {
+                y: 30,
+                opacity: 0,
+                duration: 0.7,
+                stagger: 0.05,
+                ease: 'power2.out'
+            });
+        }
+    }, { dependencies: [products], scope: listRef });
 
     // 4. URL State - Single Source of Truth
     const search = searchParams.get('search') || '';
@@ -243,7 +258,7 @@ function ProductList({ departmentId = null }) {
                 </div>
 
                 {/* --- B. PRODUCT CATALOG GRID --- */}
-                <div className="col-lg-9">
+                <div className="col-lg-9" ref={listRef}>
                     <div className="d-flex justify-content-between align-items-center mb-4 px-2">
                         <div className="text-muted">
                             Showing <span className="text-main fw-semibold">{totalProducts}</span> clothes
@@ -251,18 +266,28 @@ function ProductList({ departmentId = null }) {
                     </div>
 
                     {loading ? (
-                        <div className="text-center py-5 my-5">
-                            <div className="spinner-border text-accent" role="status" style={{ width: '3rem', height: '3rem' }}>
-                                <span className="visually-hidden">Loading catalog...</span>
-                            </div>
+                        <div className="product-grid mb-5 pb-5">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (
+                                <div key={i} className="glass-card placeholder-glow" style={{ height: '300px', opacity: 0.7 }}>
+                                    <div className="placeholder w-100 bg-secondary" style={{ height: '70%', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}></div>
+                                    <div className="p-3">
+                                        <div className="placeholder col-4 rounded bg-secondary mb-2" style={{ height: '12px' }}></div>
+                                        <div className="placeholder col-8 rounded bg-secondary mb-3 d-block" style={{ height: '16px' }}></div>
+                                        <div className="placeholder col-3 rounded bg-secondary" style={{ height: '18px' }}></div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : (
                         <>
                             {products.length === 0 ? (
-                                <div className="text-center py-5 my-5 glass-panel p-5">
-                                    <i className="bi bi-emoji-frown text-accent display-1 d-block mb-3"></i>
-                                    <h4 className="text-main fw-bold">No Products Found</h4>
-                                    <p className="text-muted">Try adjusting your filters or typing another search term.</p>
+                                <div className="text-center py-5 my-5 glass-panel p-5" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+                                    <div className="mb-4" style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(217, 119, 87, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <i className="bi bi-search text-accent fs-3"></i>
+                                    </div>
+                                    <h4 className="text-main fw-bold" style={{ letterSpacing: '-0.02em' }}>No products found</h4>
+                                    <p className="text-muted mb-4" style={{ maxWidth: '400px' }}>We couldn't find anything matching your current filters. Try adjusting your search criteria or clearing all filters.</p>
+                                    <button className="btn glass-btn-secondary" onClick={handleResetFilters}>Clear Filters</button>
                                 </div>
                             ) : (
                                 <div className="product-grid">
@@ -271,7 +296,8 @@ function ProductList({ departmentId = null }) {
                                         <Link
                                             to={`/products/${product.id}`}
                                             key={product._id}
-                                            className="text-decoration-none text-reset"
+                                            className="text-decoration-none text-reset product-link-item"
+                                            style={{ display: 'block' }}
                                         >
                                             <ProductCard product={product} />
                                         </Link>

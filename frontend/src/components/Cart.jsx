@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { createOrder, createRazorpayOrder } from '../services/api'; // 👈 Import our new API helper
+import { createOrder, createRazorpayOrder } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 function Cart() {
     const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
     const { user } = useAuth();
-
 
     // States for handling checkout flow
     const [checkoutMode, setCheckoutMode] = useState(false);
@@ -34,7 +33,7 @@ function Cart() {
                 key: rzpOrder.key_id,
                 amount: rzpOrder.amount,
                 currency: rzpOrder.currency,
-                name: "Apollo Market",
+                name: "HIGH WEAR",
                 description: "Secure Checkout Payment",
                 order_id: rzpOrder.id,
 
@@ -42,7 +41,7 @@ function Cart() {
                 handler: async function (response) {
                     try {
                         const payload = {
-                            user_id: user ? user.id : null, // 👈 If logged in, attach ID. Otherwise null
+                            user_id: user ? user.id : null,
                             items: cart.map(item => ({
                                 product_id: item.product._id,
                                 quantity: item.quantity
@@ -69,11 +68,11 @@ function Cart() {
                     email: customerInfo.email
                 },
                 theme: {
-                    color: "#6366f1" // Custom Indigo styling to match Apollo Market theme
+                    color: "#0b0b0b" // Match brutalist theme
                 },
                 modal: {
                     ondismiss: function () {
-                        setIsPlacing(false); // Enable the place order button again if closed
+                        setIsPlacing(false);
                     }
                 }
             };
@@ -93,25 +92,19 @@ function Cart() {
     // 1. SUCCESS SCREEN (Printed Receipt Analogy)
     if (orderSuccess) {
         return (
-            <div className="container mt-5">
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="glass-panel p-5 text-center">
-                            <i className="bi bi-patch-check-fill text-success display-1 d-block mb-3"></i>
-                            <h3 className="text-main fw-bold">Order Placed Successfully!</h3>
-                            <p className="text-muted mb-4">Thank you for shopping with Apollo Market.</p>
-
-                            <div className="glass-panel p-4 mb-4 text-start bg-opacity-25" style={{ borderRadius: '12px' }}>
-                                <div className="mb-2 text-main"><strong>Order Reference:</strong> <span className="text-accent">{orderSuccess.order_id}</span></div>
-                                <div className="mb-2 text-main"><strong>Total Charged:</strong> ₹{orderSuccess.total.toLocaleString()}</div>
-                                <div className="text-muted fs-7">A confirmation email has been dispatched to {customerInfo.email}.</div>
-                            </div>
-
-                            <Link to="/catalog" className="btn glass-btn">
-                                Return to Catalog
-                            </Link>
-                        </div>
+            <div className="container" style={{ paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xxl)' }}>
+                <div style={{ border: '2px solid var(--text-main)', padding: 'var(--spacing-lg)', maxWidth: '600px', margin: '0 auto' }}>
+                    <h3 className="heading-large" style={{ marginBottom: 'var(--spacing-md)' }}>ORDER CONFIRMED</h3>
+                    
+                    <div className="text-mono" style={{ marginBottom: 'var(--spacing-lg)', borderTop: '2px solid var(--text-main)', borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-md) 0' }}>
+                        <div style={{ marginBottom: 'var(--spacing-sm)' }}><strong>REFERENCE:</strong> {orderSuccess.order_id}</div>
+                        <div style={{ marginBottom: 'var(--spacing-sm)' }}><strong>TOTAL:</strong> ${orderSuccess.total.toLocaleString()}</div>
+                        <div style={{ fontSize: '0.8rem' }}>RECEIPT SENT TO: {customerInfo.email}</div>
                     </div>
+
+                    <Link to="/shop" className="hover-invert" style={{ display: 'inline-block', border: '2px solid var(--text-main)', padding: 'var(--spacing-sm) var(--spacing-md)', fontWeight: 'bold' }}>
+                        RETURN TO SHOP
+                    </Link>
                 </div>
             </div>
         );
@@ -120,74 +113,47 @@ function Cart() {
     // 2. EMPTY BASKET VIEW
     if (cart.length === 0) {
         return (
-            <div className="container mt-5">
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="glass-panel p-5 text-center">
-                            <i className="bi bi-cart-x text-accent display-1 d-block mb-3"></i>
-                            <h3 className="text-main fw-bold">Your Basket is Empty</h3>
-                            <p className="text-muted mb-4">Go explore the catalog and pick out some fashion items!</p>
-                            <Link to="/catalog" className="btn glass-btn">
-                                Explore Products
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+            <div className="container" style={{ paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xxl)', textAlign: 'center' }}>
+                <h3 className="heading-massive" style={{ marginBottom: 'var(--spacing-md)' }}>CART IS EMPTY</h3>
+                <Link to="/shop" className="hover-invert" style={{ display: 'inline-block', border: '2px solid var(--text-main)', padding: 'var(--spacing-sm) var(--spacing-md)', fontWeight: 'bold' }}>
+                    EXPLORE PRODUCTS
+                </Link>
             </div>
         );
     }
 
     return (
-        <div className="container mt-5">
-            <h2 className="text-main fw-bold mb-4">
-                <i className="bi bi-bag-check-fill text-accent me-2"></i>
-                {checkoutMode ? 'Delivery Information' : 'Review Your Basket'}
+        <div className="container" style={{ paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xxl)' }}>
+            <h2 className="heading-massive" style={{ marginBottom: 'var(--spacing-lg)', borderBottom: '2px solid var(--text-main)', paddingBottom: 'var(--spacing-md)' }}>
+                {checkoutMode ? 'SHIPPING DETAILS' : 'BASKET'}
             </h2>
 
-            <div className="row g-4">
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--spacing-xl)' }}>
                 {/* Left Column: Toggles between Basket Items and Checkout Form */}
-                <div className="col-lg-8">
+                <div>
                     {!checkoutMode ? (
                         // REVIEW CART ITEMS VIEW
-                        <div className="glass-panel p-4">
+                        <div>
                             {cart.map((item) => (
-                                <div key={item.product._id} className="row align-items-center g-3 mb-4 pb-4 border-bottom border-white border-opacity-10 last-border-none">
-                                    <div className="col-3 col-sm-2">
-                                        <div className="product-card-img-wrapper" style={{ paddingTop: '100%', borderRadius: '10px' }}>
-                                            <img src={item.product.image} alt={item.product.name} className="product-card-img" />
+                                <div key={item.product._id} style={{ display: 'grid', gridTemplateColumns: '100px 1fr auto', gap: 'var(--spacing-md)', borderBottom: '2px solid var(--text-main)', paddingBottom: 'var(--spacing-md)', marginBottom: 'var(--spacing-md)' }}>
+                                    <div style={{ backgroundColor: 'var(--bg-accent)', aspectRatio: '1/1' }}>
+                                        <img src={item.product.image || 'https://via.placeholder.com/100'} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', mixBlendMode: 'multiply' }} />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <span className="text-tiny bracket-wrap" style={{ marginBottom: 'var(--spacing-xs)' }}>{item.product.brand || 'BRAND'}</span>
+                                        <h6 className="heading-medium" style={{ margin: 0 }}>{item.product.name}</h6>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                                        <div className="text-mono fw-bold fs-6">
+                                            ${(item.product.retail_price * item.quantity).toLocaleString()}
                                         </div>
-                                    </div>
-                                    <div className="col-9 col-sm-5">
-                                        <span className="text-accent fw-bold fs-8 text-uppercase">{item.product.brand}</span>
-                                        <h6 className="text-main fw-semibold text-truncate m-0" title={item.product.name}>
-                                            {item.product.name}
-                                        </h6>
-                                        <span className="text-muted fs-7">Category: {item.product.category}</span>
-                                    </div>
-                                    <div className="col-6 col-sm-3 d-flex align-items-center gap-2">
-                                        <button
-                                            className="btn btn-sm glass-btn-secondary py-0.5 px-2.5"
-                                            onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
-                                        >
-                                            -
-                                        </button>
-                                        <span className="text-main fw-medium px-2">{item.quantity}</span>
-                                        <button
-                                            className="btn btn-sm glass-btn-secondary py-0.5 px-2.5"
-                                            onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                    <div className="col-6 col-sm-2 text-end">
-                                        <div className="text-main fw-bold fs-6">
-                                            ₹{(item.product.retail_price * item.quantity).toLocaleString()}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                                            <button className="hover-invert" style={{ border: '2px solid var(--text-main)', width: '30px', height: '30px' }} onClick={() => updateQuantity(item.product._id, item.quantity - 1)}>-</button>
+                                            <span className="text-mono fw-bold">{item.quantity}</span>
+                                            <button className="hover-invert" style={{ border: '2px solid var(--text-main)', width: '30px', height: '30px' }} onClick={() => updateQuantity(item.product._id, item.quantity + 1)}>+</button>
                                         </div>
-                                        <button
-                                            className="btn btn-sm text-danger border-0 bg-transparent p-0 mt-1 fs-7"
-                                            onClick={() => removeFromCart(item.product._id)}
-                                        >
-                                            <i className="bi bi-trash-fill me-1"></i>Remove
+                                        <button className="text-tiny hover-invert" style={{ marginTop: 'var(--spacing-sm)', padding: '2px 4px' }} onClick={() => removeFromCart(item.product._id)}>
+                                            [ REMOVE ]
                                         </button>
                                     </div>
                                 </div>
@@ -195,61 +161,26 @@ function Cart() {
                         </div>
                     ) : (
                         // CHECKOUT SHIPPMENT FORM VIEW
-                        <div className="glass-panel p-4">
-                            <h4 className="text-main fw-bold mb-4">Shipping & Invoicing Details</h4>
-                            <form onSubmit={handleSubmitOrder}>
-                                <div className="mb-3">
-                                    <label className="form-label text-main fw-medium">Full Name</label>
-                                    <input
-                                        type="text"
-                                        className="form-control glass-input"
-                                        name="name"
-                                        value={customerInfo.name}
-                                        onChange={handleInputChange}
-                                        placeholder="Enter your name"
-                                        required
-                                    />
+                        <div style={{ border: '2px solid var(--text-main)', padding: 'var(--spacing-lg)' }}>
+                            <form onSubmit={handleSubmitOrder} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                                    <label className="text-tiny bracket-wrap">FULL NAME</label>
+                                    <input type="text" style={{ borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-sm) 0', fontSize: '1.2rem' }} name="name" value={customerInfo.name} onChange={handleInputChange} required />
                                 </div>
-                                <div className="mb-3">
-                                    <label className="form-label text-main fw-medium">Email Address</label>
-                                    <input
-                                        type="email"
-                                        className="form-control glass-input"
-                                        name="email"
-                                        value={customerInfo.email}
-                                        onChange={handleInputChange}
-                                        placeholder="email@example.com"
-                                        required
-                                    />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                                    <label className="text-tiny bracket-wrap">EMAIL</label>
+                                    <input type="email" style={{ borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-sm) 0', fontSize: '1.2rem' }} name="email" value={customerInfo.email} onChange={handleInputChange} required />
                                 </div>
-                                <div className="mb-4">
-                                    <label className="form-label text-main fw-medium">Shipping Address</label>
-                                    <textarea
-                                        className="form-control glass-input"
-                                        name="address"
-                                        rows="3"
-                                        value={customerInfo.address}
-                                        onChange={handleInputChange}
-                                        placeholder="Street name, City, Zipcode"
-                                        required
-                                    ></textarea>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                                    <label className="text-tiny bracket-wrap">ADDRESS</label>
+                                    <textarea style={{ borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-sm) 0', fontSize: '1.2rem', resize: 'vertical', minHeight: '80px', fontFamily: 'var(--font-body)' }} name="address" value={customerInfo.address} onChange={handleInputChange} required></textarea>
                                 </div>
-
-                                <div className="d-flex gap-3">
-                                    <button
-                                        type="button"
-                                        className="btn glass-btn-secondary px-4 py-2"
-                                        onClick={() => setCheckoutMode(false)}
-                                        disabled={isPlacing}
-                                    >
-                                        Back to Basket
+                                <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-md)' }}>
+                                    <button type="button" className="hover-invert" style={{ flex: 1, border: '2px solid var(--text-main)', padding: 'var(--spacing-md)', fontWeight: 'bold' }} onClick={() => setCheckoutMode(false)} disabled={isPlacing}>
+                                        BACK TO BASKET
                                     </button>
-                                    <button
-                                        type="submit"
-                                        className="btn glass-btn px-4 py-2 flex-grow-1"
-                                        disabled={isPlacing}
-                                    >
-                                        {isPlacing ? 'Placing Order...' : `Pay & Place Order`}
+                                    <button type="submit" className="hover-invert" style={{ flex: 2, border: '2px solid var(--text-main)', padding: 'var(--spacing-md)', fontWeight: 'bold' }} disabled={isPlacing}>
+                                        {isPlacing ? 'PROCESSING...' : 'PAY & PLACE ORDER'}
                                     </button>
                                 </div>
                             </form>
@@ -258,25 +189,25 @@ function Cart() {
                 </div>
 
                 {/* Right Column: Cost Receipts Summary */}
-                <div className="col-lg-4">
-                    <div className="glass-panel p-4 position-sticky" style={{ top: '100px' }}>
-                        <h4 className="text-main fw-bold mb-4">Summary</h4>
-                        <div className="d-flex justify-content-between mb-3 border-bottom border-white border-opacity-10 pb-2">
-                            <span className="text-muted">Subtotal</span>
-                            <span className="text-main fw-semibold">₹{cartTotal.toLocaleString()}</span>
+                <div>
+                    <div style={{ border: '2px solid var(--text-main)', padding: 'var(--spacing-lg)', position: 'sticky', top: 'var(--spacing-lg)' }}>
+                        <h4 className="heading-large" style={{ marginBottom: 'var(--spacing-md)', borderBottom: '2px solid var(--text-main)', paddingBottom: 'var(--spacing-xs)' }}>SUMMARY</h4>
+                        <div className="flex-between text-mono" style={{ marginBottom: 'var(--spacing-sm)' }}>
+                            <span>SUBTOTAL</span>
+                            <span>${cartTotal.toLocaleString()}</span>
                         </div>
-                        <div className="d-flex justify-content-between mb-4">
-                            <span className="text-muted">Delivery</span>
-                            <span className="text-success fw-semibold">FREE</span>
+                        <div className="flex-between text-mono" style={{ marginBottom: 'var(--spacing-lg)' }}>
+                            <span>DELIVERY</span>
+                            <span>FREE</span>
                         </div>
-                        <div className="d-flex justify-content-between mb-4 border-top border-white border-opacity-10 pt-3">
-                            <h5 className="text-main fw-bold">Total</h5>
-                            <h5 className="text-accent fw-bold">₹{cartTotal.toLocaleString()}</h5>
+                        <div className="flex-between text-mono" style={{ borderTop: '2px solid var(--text-main)', paddingTop: 'var(--spacing-sm)', marginBottom: 'var(--spacing-lg)', fontWeight: 'bold', fontSize: '1.5rem' }}>
+                            <span>TOTAL</span>
+                            <span>${cartTotal.toLocaleString()}</span>
                         </div>
 
                         {!checkoutMode && (
-                            <button className="btn glass-btn w-100 py-2.5 fw-bold fs-6" onClick={() => setCheckoutMode(true)}>
-                                Proceed to Checkout
+                            <button className="hover-invert" style={{ width: '100%', border: '2px solid var(--text-main)', padding: 'var(--spacing-md)', fontWeight: 'bold', fontSize: '1.2rem' }} onClick={() => setCheckoutMode(true)}>
+                                PROCEED TO CHECKOUT
                             </button>
                         )}
                     </div>
