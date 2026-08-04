@@ -39,9 +39,7 @@ function Navigation() {
                 fontWeight: 'bold'
             }}>
                 <NavLink to="/shop" className="hover-invert">SHOP</NavLink>
-                <NavLink to="/editorial" className="hover-invert">EDITORIAL</NavLink>
                 <NavLink to="/about" className="hover-invert">ABOUT</NavLink>
-                <NavLink to="/blog" className="hover-invert">CULTURE</NavLink>
                 <NavLink to="/contact" className="hover-invert">CONTACT</NavLink>
             </div>
 
