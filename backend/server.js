@@ -480,3 +480,4 @@ app.post('/api/orders', async (req, res) => {
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+export default app;
