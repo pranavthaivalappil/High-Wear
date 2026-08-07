@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 1. Create a configured Axios instance
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api' // Point to our Express server
+    baseURL: '/api' // Point to our Express server
 });
 
 // 2. Define clear helper functions for each endpoint
