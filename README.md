@@ -1,4 +1,4 @@
-# HIGH WEAR (ApolloMarket)
+# HIGH WEAR
 
 HIGH WEAR is a premium, high-performance, and immersive full-stack e-commerce marketplace built using the MERN stack. Designed with custom aesthetics, fluid animations, and real-time state synchronization, the platform handles user authentication, product catalogs, department groupings, secure Razorpay payments, and live inventory broadcasts.
 
