@@ -29,7 +29,7 @@ function About() {
             </div>
 
             <div style={{ marginTop: 'var(--spacing-xxl)' }}>
-                <img src="https://images.unsplash.com/photo-1542314831-c6a4d14fe6a1?q=80&w=1600&auto=format&fit=crop" alt="About Studio" style={{ width: '100%', height: '600px', objectFit: 'cover' }} />
+                <img src="/about-studio.jpg" alt="About Studio" style={{ width: '100%', height: '600px', objectFit: 'cover' }} />
             </div>
         </div>
     );

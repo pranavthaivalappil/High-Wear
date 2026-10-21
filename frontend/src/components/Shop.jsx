@@ -40,21 +40,21 @@ function Shop() {
                     <div className="text-mono">LOADING PRODUCTS...</div>
                 ) : (
                     products.map((product) => (
-                        <div key={product._id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                        <div key={product._id} className='product-card'>
                             <Link to={`/products/${product._id}`} style={{ backgroundColor: 'var(--bg-accent)', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                                 <img src={product.image || 'https://via.placeholder.com/400'} alt={product.name} style={{ mixBlendMode: 'multiply', width: '100%', height: '100%', objectFit: 'cover' }} />
                             </Link>
-                            <div className="flex-between text-mono text-tiny" style={{ fontWeight: 'bold' }}>
-                                <span>{product.name}</span>
-                                <span>₹{product.retail_price?.toLocaleString('en-IN')}</span>
+                            <div className="product-card-header text-mono text-tiny" style={{ fontWeight: 'bold' }}>
+                                <span className='product-card-title'>{product.name}</span>
+                                <span className='product-card-price'>₹{product.retail_price?.toLocaleString('en-IN')}</span>
                             </div>
                             <button
-                                className="hover-invert text-mono fw-bold"
-                                style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', cursor: 'pointer' }}
+                                className="hover-invert text-mono fw-bold product-card-btn"
                                 onClick={() => addToCart(product, 1)}
                             >
                                 [ ADD TO CART ]
                             </button>
+
                         </div>
                     ))
                 )}

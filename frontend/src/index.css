@@ -136,6 +136,43 @@ img:hover {
   gap: var(--spacing-md);
 }
 
+/* Brutalist Product Card Alignment */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: var(--spacing-xs);
+}
+
+.product-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+}
+
+.product-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.product-card-price {
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-weight: bold;
+}
+
+.product-card-btn {
+  margin-top: auto !important;
+  width: 100%;
+  border: 1px solid var(--text-main);
+  padding: var(--spacing-xs);
+  cursor: pointer;
+}
+
 /* Responsive 2-Column Split Layout */
 .split-2col {
   display: grid;
