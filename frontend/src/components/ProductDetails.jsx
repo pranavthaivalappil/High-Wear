@@ -114,7 +114,7 @@ function ProductDetails() {
             </div>
 
             {/* Main 2-Column Product Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-xl)', marginBottom: 'var(--spacing-xxl)' }}>
+            <div className='split-2col' style={{ marginBottom: 'var(--spacing-xxl)' }}>
 
                 {/* Left Column: Image view */}
                 <div style={{ backgroundColor: 'var(--bg-accent)', border: '2px solid var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'start', height: 'auto', maxHeight: '70vh' }}>
@@ -220,7 +220,7 @@ function ProductDetails() {
                         RELATED ACQUISITIONS
                     </h2>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-sm)' }}>
+                    <div className='responsive-product-grid'>
                         {recommendations.map((rec) => (
                             <div key={rec._id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
                                 <Link to={`/products/${rec._id}`} style={{ backgroundColor: 'var(--bg-accent)', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -228,7 +228,7 @@ function ProductDetails() {
                                 </Link>
                                 <div className="flex-between text-mono text-tiny" style={{ fontWeight: 'bold' }}>
                                     <span>{rec.name}</span>
-                                    <span>${rec.retail_price}</span>
+                                    <span>₹{rec.retail_price?.toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                         ))}

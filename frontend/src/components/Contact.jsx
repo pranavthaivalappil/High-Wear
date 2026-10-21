@@ -3,13 +3,13 @@ import React from 'react';
 function Contact() {
     return (
         <div className="container" style={{ paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xxl)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-xl)' }}>
-                
+            <div className='split-2col'>
+
                 <div>
-                    <h1 className="heading-massive" style={{ marginBottom: 'var(--spacing-lg)' }}>CONTACT<br/>US</h1>
+                    <h1 className="heading-massive" style={{ marginBottom: 'var(--spacing-lg)' }}>CONTACT<br />US</h1>
                     <div className="text-mono" style={{ fontSize: '1.2rem', lineHeight: '1.5', maxWidth: '400px', marginBottom: 'var(--spacing-xl)' }}>
                         <p>CUSTOMER SERVICE, PRESS INQUIRIES, OR WHOLESALE ACCOUNTS.</p>
-                        <br/>
+                        <br />
                         <p>1-800-HIGH-WEAR</p>
                         <p>INFO@HIGHWEAR.COM</p>
                     </div>
