@@ -95,7 +95,7 @@ function Cart() {
             <div className="container" style={{ paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xxl)' }}>
                 <div style={{ border: '2px solid var(--text-main)', padding: 'var(--spacing-lg)', maxWidth: '600px', margin: '0 auto' }}>
                     <h3 className="heading-large" style={{ marginBottom: 'var(--spacing-md)' }}>ORDER CONFIRMED</h3>
-                    
+
                     <div className="text-mono" style={{ marginBottom: 'var(--spacing-lg)', borderTop: '2px solid var(--text-main)', borderBottom: '2px solid var(--text-main)', padding: 'var(--spacing-md) 0' }}>
                         <div style={{ marginBottom: 'var(--spacing-sm)' }}><strong>REFERENCE:</strong> {orderSuccess.order_id}</div>
                         <div style={{ marginBottom: 'var(--spacing-sm)' }}><strong>TOTAL:</strong> ${orderSuccess.total.toLocaleString()}</div>
@@ -128,7 +128,7 @@ function Cart() {
                 {checkoutMode ? 'SHIPPING DETAILS' : 'BASKET'}
             </h2>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--spacing-xl)' }}>
+            <div className='split-sidebar'>
                 {/* Left Column: Toggles between Basket Items and Checkout Form */}
                 <div>
                     {!checkoutMode ? (
@@ -145,7 +145,7 @@ function Cart() {
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                                         <div className="text-mono fw-bold fs-6">
-                                            ${(item.product.retail_price * item.quantity).toLocaleString()}
+                                            ₹{(item.product.retail_price * item.quantity).toLocaleString('en-IN')}
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
                                             <button className="hover-invert" style={{ border: '2px solid var(--text-main)', width: '30px', height: '30px' }} onClick={() => updateQuantity(item.product._id, item.quantity - 1)}>-</button>
@@ -194,7 +194,7 @@ function Cart() {
                         <h4 className="heading-large" style={{ marginBottom: 'var(--spacing-md)', borderBottom: '2px solid var(--text-main)', paddingBottom: 'var(--spacing-xs)' }}>SUMMARY</h4>
                         <div className="flex-between text-mono" style={{ marginBottom: 'var(--spacing-sm)' }}>
                             <span>SUBTOTAL</span>
-                            <span>${cartTotal.toLocaleString()}</span>
+                            <span>₹{cartTotal.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex-between text-mono" style={{ marginBottom: 'var(--spacing-lg)' }}>
                             <span>DELIVERY</span>
@@ -202,7 +202,7 @@ function Cart() {
                         </div>
                         <div className="flex-between text-mono" style={{ borderTop: '2px solid var(--text-main)', paddingTop: 'var(--spacing-sm)', marginBottom: 'var(--spacing-lg)', fontWeight: 'bold', fontSize: '1.5rem' }}>
                             <span>TOTAL</span>
-                            <span>${cartTotal.toLocaleString()}</span>
+                            <span>₹{cartTotal.toLocaleString('en-IN')}</span>
                         </div>
 
                         {!checkoutMode && (

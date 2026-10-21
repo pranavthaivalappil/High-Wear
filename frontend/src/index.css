@@ -143,6 +143,29 @@ img:hover {
   gap: var(--spacing-xl);
 }
 
+/* Responsive Split Layouts */
+.split-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+.split-sidebar {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+
+  .split-2col,
+  .split-sidebar {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+
 @media (max-width: 768px) {
 
   /* Stack the 3-column footer on mobile */
