@@ -7,7 +7,7 @@
   --bg-accent: #e5e5e5;
   --text-main: #0b0b0b;
   --text-light: #ffffff;
-  
+
   --font-heading: 'Bebas Neue', Impact, sans-serif;
   --font-body: 'Space Mono', 'Courier New', monospace;
 
@@ -27,7 +27,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  border-radius: 0 !important; /* STRICTLY NO ROUNDED CORNERS */
+  border-radius: 0 !important;
+  /* STRICTLY NO ROUNDED CORNERS */
 }
 
 body {
@@ -40,7 +41,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   text-transform: uppercase;
   line-height: 0.85;
@@ -53,7 +59,8 @@ a {
   text-decoration: none;
 }
 
-img, video {
+img,
+video {
   max-width: 100%;
   display: block;
   filter: grayscale(100%) contrast(120%);
@@ -94,6 +101,7 @@ img:hover {
 .bracket-wrap::before {
   content: "[ ";
 }
+
 .bracket-wrap::after {
   content: " ]";
 }
@@ -103,6 +111,7 @@ img:hover {
   transition: background-color var(--transition-fast), color var(--transition-fast);
   padding: 2px 4px;
 }
+
 .hover-invert:hover {
   background-color: var(--text-main);
   color: var(--text-light);
@@ -116,6 +125,20 @@ img:hover {
   padding: 0 var(--spacing-md);
 }
 
+.responsive-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 500px) {
+  .responsive-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xs);
+  }
+}
+
+
 .grid-strict {
   display: grid;
   gap: var(--spacing-lg);
@@ -128,13 +151,16 @@ img:hover {
 }
 
 /* Form Elements */
-input, button {
+input,
+button {
   font-family: var(--font-body);
   border: none;
   background: none;
   border-radius: 0;
 }
-input:focus, button:focus {
+
+input:focus,
+button:focus {
   outline: none;
 }
 
@@ -144,6 +170,73 @@ input:focus, button:focus {
   flex-direction: column;
   min-height: 100vh;
 }
+
 .main-content {
   flex: 1;
+}
+
+/* --- BRUTALIST RESPONSIVE NAVBAR --- */
+.brutalist-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 2px solid var(--text-main);
+  background-color: var(--bg-primary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brutalist-nav .nav-logo {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.brutalist-nav .nav-links {
+  display: flex;
+  gap: var(--spacing-lg);
+  font-family: var(--font-body);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.brutalist-nav .nav-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  font-family: var(--font-body);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Mobile 2-Tier Stack */
+@media (max-width: 768px) {
+  .brutalist-nav {
+    flex-wrap: wrap;
+    gap: var(--spacing-xs) 0;
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+
+  .brutalist-nav .nav-logo {
+    order: 1;
+    font-size: 2rem;
+  }
+
+  .brutalist-nav .nav-actions {
+    order: 2;
+    font-size: 0.85rem;
+  }
+
+  .brutalist-nav .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: space-around;
+    border-top: 1px solid var(--text-main);
+    padding-top: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+    font-size: 0.85rem;
+  }
 }

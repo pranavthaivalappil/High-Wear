@@ -15,7 +15,7 @@ function Shop() {
                 // Fetch the first 12 products
                 const response = await fetchProducts({ limit: 12 });
                 // Assuming your API returns { data: { products: [...] } }
-                setProducts(response.data.products);
+                setProducts(response.data?.products || []);
             } catch (err) {
                 console.error('Failed to fetch products', err);
             } finally {
@@ -35,7 +35,7 @@ function Shop() {
                 <div className="text-tiny">[ FILTERS : NONE ]</div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-lg) var(--spacing-sm)' }}>
+            <div className="responsive-product-grid">
                 {loading ? (
                     <div className="text-mono">LOADING PRODUCTS...</div>
                 ) : (
@@ -48,8 +48,8 @@ function Shop() {
                                 <span>{product.name}</span>
                                 <span>${product.price}</span>
                             </div>
-                            <button 
-                                className="hover-invert text-mono fw-bold" 
+                            <button
+                                className="hover-invert text-mono fw-bold"
                                 style={{ border: '1px solid var(--text-main)', padding: 'var(--spacing-xs)', marginTop: 'var(--spacing-xs)', cursor: 'pointer' }}
                                 onClick={() => addToCart(product, 1)}
                             >

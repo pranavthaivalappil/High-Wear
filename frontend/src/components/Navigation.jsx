@@ -8,51 +8,21 @@ function Navigation() {
     const { user, logout } = useAuth();
 
     return (
-        <nav style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: 'var(--spacing-md) var(--spacing-lg)',
-            borderBottom: '2px solid var(--text-main)',
-            backgroundColor: 'var(--bg-primary)'
-        }}>
+        <nav className="brutalist-nav">
             {/* Brand Logo */}
-            <div style={{ flex: 1 }}>
-                <Link to="/" style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontSize: '4rem',
-                    letterSpacing: '0.05em'
-                }}>
-                    HIGH WEAR
-                </Link>
+            <div className='nav-logo'>
+                <Link to="/">HIGH WEAR</Link>
             </div>
 
             {/* Centered Links */}
-            <div style={{
-                display: 'flex',
-                gap: 'var(--spacing-lg)',
-                flex: 2,
-                justifyContent: 'center',
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-body)',
-                fontSize: '2.5 rem',
-                fontWeight: 'bold'
-            }}>
+            <div className="nav-links">
                 <NavLink to="/shop" className="hover-invert">SHOP</NavLink>
                 <NavLink to="/about" className="hover-invert">ABOUT</NavLink>
                 <NavLink to="/contact" className="hover-invert">CONTACT</NavLink>
             </div>
 
             {/* Right side Auth/Cart */}
-            <div style={{
-                display: 'flex',
-                gap: 'var(--spacing-md)',
-                flex: 1,
-                justifyContent: 'flex-end',
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-body)',
-                fontSize: '2.5 rem'
-            }}>
+            <div className='nav-actions'>
                 {user ? (
                     <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
                         <span>[ {user.name} ]</span>

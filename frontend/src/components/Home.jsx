@@ -14,7 +14,7 @@ function Home() {
             try {
                 // Fetch only 4 products for the home page carousel
                 const response = await fetchProducts({ limit: 4 });
-                setProducts(response.data.products);
+                setProducts(response.data?.products || []);
             } catch (err) {
                 console.error('Failed to fetch products', err);
             } finally {
@@ -97,11 +97,11 @@ function Home() {
                     <h2 className="heading-medium">CURRENT SEASON</h2>
                     <Link to="/shop" className="text-tiny hover-invert bracket-wrap">VIEW ALL</Link>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-sm)' }}>
+                <div className="responsive-product-grid">
                     {loading ? (
                         <div className="text-mono fw-bold">[ FETCHING INVENTORY... ]</div>
                     ) : (
-                        products.map((product) => (
+                        products?.map((product) => (
                             <div key={product._id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
                                 <Link to={`/products/${product._id}`} style={{ backgroundColor: 'var(--bg-accent)', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                                     <img src={product.image || 'https://via.placeholder.com/400'} alt={product.name} style={{ mixBlendMode: 'multiply', width: '100%', height: '100%', objectFit: 'cover' }} />

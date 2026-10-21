@@ -38,3 +38,5 @@ desktop.ini
 *.sw?
 .gemini/
 .agents/
+
+LEARNING_JOURNAL.md
