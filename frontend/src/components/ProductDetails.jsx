@@ -98,14 +98,14 @@ function ProductDetails() {
     const dateAdded = new Date(product.createdAt).toLocaleDateString('en-IN', {
         day: '2-digit', month: '2-digit', year: 'numeric'
     }).replace(/\//g, '.');
-    
+
     const lastUpdated = new Date(product.updatedAt).toLocaleDateString('en-IN', {
         day: '2-digit', month: '2-digit', year: 'numeric'
     }).replace(/\//g, '.');
 
     return (
         <div className="container" style={{ paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xxl)' }}>
-            
+
             {/* Top Navigation */}
             <div style={{ marginBottom: 'var(--spacing-lg)' }}>
                 <Link to="/shop" className="text-tiny hover-invert bracket-wrap">
@@ -115,7 +115,7 @@ function ProductDetails() {
 
             {/* Main 2-Column Product Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-xl)', marginBottom: 'var(--spacing-xxl)' }}>
-                
+
                 {/* Left Column: Image view */}
                 <div style={{ backgroundColor: 'var(--bg-accent)', border: '2px solid var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'start', height: 'auto', maxHeight: '70vh' }}>
                     <img
@@ -182,11 +182,8 @@ function ProductDetails() {
                     <div style={{ borderTop: '2px solid var(--text-main)', paddingTop: 'var(--spacing-md)' }}>
                         <div className="flex-between" style={{ alignItems: 'flex-end', marginBottom: 'var(--spacing-md)' }}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span className="text-tiny" style={{ textDecoration: 'line-through', opacity: 0.5 }}>
-                                    USD ${product.price_usd ? product.price_usd.toFixed(2) : (product.retail_price / 80).toFixed(2)}
-                                </span>
                                 <h1 className="heading-medium m-0" style={{ fontSize: 'clamp(1.8rem, 3vw, 2.5rem)' }}>
-                                    ${product.retail_price.toLocaleString()}
+                                    ₹{product.retail_price?.toLocaleString('en-IN')}
                                 </h1>
                             </div>
                         </div>
@@ -222,7 +219,7 @@ function ProductDetails() {
                     <h2 className="heading-medium" style={{ borderBottom: '2px solid var(--text-main)', paddingBottom: 'var(--spacing-xs)', marginBottom: 'var(--spacing-lg)' }}>
                         RELATED ACQUISITIONS
                     </h2>
-                    
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-sm)' }}>
                         {recommendations.map((rec) => (
                             <div key={rec._id} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>

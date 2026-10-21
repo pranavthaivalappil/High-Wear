@@ -46,7 +46,7 @@ function Shop() {
                             </Link>
                             <div className="flex-between text-mono text-tiny" style={{ fontWeight: 'bold' }}>
                                 <span>{product.name}</span>
-                                <span>${product.price}</span>
+                                <span>₹{product.retail_price?.toLocaleString('en-IN')}</span>
                             </div>
                             <button
                                 className="hover-invert text-mono fw-bold"
